@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import { requestChat } from '../core/ai/ollamaClient';
 import { Button } from '../shared/ui/Button';
 import { Card } from '../shared/ui/Card';
+import { Checkbox } from '../shared/ui/Checkbox';
 import { Input } from '../shared/ui/Input';
 import { Label } from '../shared/ui/Label';
 import { useSettingsStore } from '../store/useSettingsStore';
 
 export const SettingsPage = () => {
-  const { ollama, setOllama } = useSettingsStore();
+  const { ollama, setOllama, debugMode, setDebugMode } = useSettingsStore();
   const [form, setForm] = useState(ollama);
   const [message, setMessage] = useState('');
 
@@ -16,9 +17,9 @@ export const SettingsPage = () => {
     <main className="page page-narrow">
       <header className="topbar">
         <h1>设置</h1>
-        <Button asChild variant="secondary">
-          <Link to="/">返回</Link>
-        </Button>
+        <Link to="/">
+          <Button variant="secondary">返回</Button>
+        </Link>
       </header>
       <Card title="Ollama 配置">
         <Label>Base URL</Label>
@@ -54,6 +55,15 @@ export const SettingsPage = () => {
           </Button>
         </div>
         {message && <p>{message}</p>}
+      </Card>
+      <Card title="开发调试">
+        <Label className="inline-check">
+          <Checkbox
+            checked={debugMode}
+            onChange={(event) => setDebugMode(event.target.checked)}
+          />
+          Debug 模式（新建简历自动填充测试数据）
+        </Label>
       </Card>
     </main>
   );

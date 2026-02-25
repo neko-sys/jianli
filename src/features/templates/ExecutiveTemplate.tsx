@@ -1,8 +1,8 @@
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
 import { renderSectionContent, renderTitle, ResumeHeaderIdentity } from './templateHelpers';
 
-export const ExecutiveTemplate = ({ resume, sectionOrder, sectionItemsOrder }: ResumeTemplateProps) => (
-  <div className="resume-template executive-template">
+export const ExecutiveTemplate = ({ resume, sectionOrder, sectionItemsOrder, className }: ResumeTemplateProps & { className?: string }) => (
+  <div className={`resume-template executive-template ${className ?? ''}`.trim()}>
     <header className="resume-header">
       <ResumeHeaderIdentity
         name={resume.profile.name || resume.title}

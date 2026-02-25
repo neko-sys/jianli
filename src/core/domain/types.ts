@@ -14,6 +14,8 @@ export type SectionItemsOrder = Record<string, string[]>;
 export type SectionVisibility = Record<SectionType, boolean>;
 export type SectionRegion = 'left' | 'right';
 export type SectionRegions = Partial<Record<SectionType, SectionRegion>>;
+export type BackgroundPattern = 'none' | 'wave';
+export type BorderPattern = 'none' | 'line' | 'double' | 'corner' | 'left-accent';
 
 export interface LayoutPreset {
   id: string;
@@ -80,6 +82,8 @@ export interface LayoutState {
   sectionVisibility: SectionVisibility;
   sectionRegions: SectionRegions;
   twoColumnRatio: number;
+  backgroundPattern: BackgroundPattern;
+  borderPattern: BorderPattern;
   presets: LayoutPreset[];
 }
 

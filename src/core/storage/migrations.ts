@@ -8,6 +8,9 @@ export interface ExportPayload {
   resumes: Resume[];
 }
 
+const normalizeBackgroundPattern = (value: unknown): Resume['layout']['backgroundPattern'] =>
+  value === 'wave' ? 'wave' : 'none';
+
 export const migrateResume = (resume: Resume): Resume => {
   const sectionOrder: SectionType[] = resume.layout?.sectionOrder ?? createDefaultLayout().sectionOrder;
   const defaultLayout = createDefaultLayout();
@@ -40,6 +43,7 @@ export const migrateResume = (resume: Resume): Resume => {
           ...defaultLayout.sectionRegions,
           ...resume.layout?.sectionRegions,
         },
+        backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
         presets: resume.layout?.presets ?? [],
       },
     };
@@ -69,6 +73,7 @@ export const migrateResume = (resume: Resume): Resume => {
         ...defaultLayout.sectionRegions,
         ...resume.layout?.sectionRegions,
       },
+      backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
       presets: resume.layout?.presets ?? [],
     },
   };

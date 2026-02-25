@@ -10,7 +10,7 @@ interface ResumeState {
   loading: boolean;
   error?: string;
   loadAll: () => Promise<void>;
-  createResume: (title?: string) => Promise<Resume>;
+  createResume: (title?: string, factory?: (title?: string) => Resume) => Promise<Resume>;
   selectResume: (id: string) => Promise<void>;
   saveCurrent: (next: Resume) => Promise<void>;
   deleteResume: (id: string) => Promise<void>;
@@ -35,8 +35,9 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     }
   },
 
-  createResume: async (title) => {
-    const resume = createDefaultResume(title ?? '新简历');
+  createResume: async (title, factory) => {
+    const createBy = factory ?? createDefaultResume;
+    const resume = createBy(title ?? '新简历');
     await resumeRepo.save(resume);
     const resumes = await resumeRepo.list();
     set({ resumes, current: resume });

@@ -23,9 +23,9 @@ export const PrintPage = () => {
     return (
       <main className="page">
         <p>未找到简历</p>
-        <Button asChild variant="secondary">
-          <Link to="/">返回</Link>
-        </Button>
+        <Link to="/">
+          <Button variant="secondary">返回</Button>
+        </Link>
       </main>
     );
   }

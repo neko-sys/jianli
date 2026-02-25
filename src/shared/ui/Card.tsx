@@ -1,4 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react';
+import { Card as MuiCard, Box } from '@mui/material';
 import { cn } from '../../lib/utils';
 
 interface CardProps extends PropsWithChildren {
@@ -8,13 +9,13 @@ interface CardProps extends PropsWithChildren {
 }
 
 export const Card = ({ title, actions, children, className }: CardProps) => (
-  <section className={cn('card', className)}>
+  <MuiCard className={cn('card', className)} elevation={0}>
     {(title || actions) && (
-      <header className="card-header">
-        <h3>{title}</h3>
+      <Box className="card-header">
+        {title ? <h3>{title}</h3> : <span />}
         <div>{actions}</div>
-      </header>
+      </Box>
     )}
     {children}
-  </section>
+  </MuiCard>
 );

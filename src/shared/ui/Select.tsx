@@ -1,18 +1,79 @@
 import * as React from 'react';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import ListSubheader from '@mui/material/ListSubheader';
+import SelectMui, { type SelectChangeEvent } from '@mui/material/Select';
 import { cn } from '../../lib/utils';
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, ...props }, ref) => {
+const renderSelectChildren = (children: React.ReactNode): React.ReactNode[] =>
+  React.Children.toArray(children).flatMap((node, index) => {
+    if (!React.isValidElement(node)) {
+      return [];
+    }
+
+    if (node.type === 'option') {
+      const optionProps = node.props as React.OptionHTMLAttributes<HTMLOptionElement>;
+      return (
+        <MenuItem key={optionProps.value ?? index} value={optionProps.value ?? ''} disabled={optionProps.disabled}>
+          {optionProps.children}
+        </MenuItem>
+      );
+    }
+
+    if (node.type === 'optgroup') {
+      const groupProps = node.props as React.OptgroupHTMLAttributes<HTMLOptGroupElement>;
+      const groupItems = React.Children.toArray(groupProps.children).flatMap((child, childIndex) => {
+        if (!React.isValidElement(child) || child.type !== 'option') {
+          return [];
+        }
+        const optionProps = child.props as React.OptionHTMLAttributes<HTMLOptionElement>;
+        return (
+          <MenuItem
+            key={`${groupProps.label ?? 'group'}-${optionProps.value ?? childIndex}`}
+            value={optionProps.value ?? ''}
+            disabled={optionProps.disabled}
+          >
+            {optionProps.children}
+          </MenuItem>
+        );
+      });
+
+      return [
+        <ListSubheader key={`${groupProps.label ?? index}-header`}>{groupProps.label}</ListSubheader>,
+        ...groupItems,
+      ];
+    }
+
+    return [node];
+  });
+
+export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, onChange, children, ...props }, ref) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
+    if (!onChange) {
+      return;
+    }
+
+    onChange({
+      ...event,
+      target: {
+        ...event.target,
+        value: String(event.target.value),
+      },
+    } as unknown as React.ChangeEvent<HTMLSelectElement>);
+  };
+
   return (
-    <select
-      ref={ref}
-      className={cn(
-        'ui-select flex h-9 w-full rounded-md border border-[var(--border)] bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50',
-        className,
-      )}
-      {...props}
-    />
+    <FormControl fullWidth size="small" className={cn('ui-select', className)}>
+      <SelectMui
+        ref={ref as unknown as React.Ref<HTMLDivElement>}
+        onChange={handleChange}
+        {...(props as Record<string, unknown>)}
+      >
+        {renderSelectChildren(children)}
+      </SelectMui>
+    </FormControl>
   );
 });
 

@@ -3,13 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../shared/ui/Button';
 import { Card } from '../shared/ui/Card';
 import { useResumeStore } from '../store/useResumeStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { formatDateTime, downloadJson, readJsonFile } from '../shared/utils/file';
 import { resumeRepo } from '../core/storage/resumeRepo';
 import type { ExportPayload } from '../core/storage/migrations';
+import { createDebugResume } from '../core/domain/factories';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const { resumes, loadAll, createResume, deleteResume, duplicateResume } = useResumeStore();
+  const debugMode = useSettingsStore((state) => state.debugMode);
 
   useEffect(() => {
     void loadAll();
@@ -22,7 +25,7 @@ export const DashboardPage = () => {
         <div className="row-actions">
           <Button
             onClick={async () => {
-              const resume = await createResume('新简历');
+              const resume = await createResume('新简历', debugMode ? createDebugResume : undefined);
               navigate(`/resume/${resume.id}/edit`);
             }}
           >
@@ -37,27 +40,25 @@ export const DashboardPage = () => {
           >
             导出全部 JSON
           </Button>
-          <Button asChild variant="secondary" className="file-btn">
-            <label>
-              导入 JSON
-              <input
-                type="file"
-                accept="application/json"
-                onChange={async (event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) {
-                    return;
-                  }
-                  const payload = await readJsonFile<ExportPayload>(file);
-                  await resumeRepo.import(payload);
-                  await loadAll();
-                }}
-              />
-            </label>
+          <Button variant="secondary" className="file-btn" component="label">
+            导入 JSON
+            <input
+              type="file"
+              accept="application/json"
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) {
+                  return;
+                }
+                const payload = await readJsonFile<ExportPayload>(file);
+                await resumeRepo.import(payload);
+                await loadAll();
+              }}
+            />
           </Button>
-          <Button asChild variant="secondary">
-            <Link to="/settings">设置</Link>
-          </Button>
+          <Link to="/settings">
+            <Button variant="secondary">设置</Button>
+          </Link>
         </div>
       </header>
 

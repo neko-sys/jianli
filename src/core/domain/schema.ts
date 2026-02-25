@@ -76,6 +76,8 @@ export const resumeSchema = z.object({
     }),
     sectionRegions: z.record(z.string(), z.enum(['left', 'right'])).default({}),
     twoColumnRatio: z.number().min(1).max(3).default(1.6),
+    backgroundPattern: z.enum(['none', 'wave']).default('none'),
+    borderPattern: z.enum(['none', 'line', 'double', 'corner', 'left-accent']).default('none'),
     presets: z.array(
       z.object({
         id: z.string(),

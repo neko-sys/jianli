@@ -37,6 +37,8 @@ export const createDefaultLayout = (): LayoutState => ({
     projects: 'right',
   },
   twoColumnRatio: 1.6,
+  backgroundPattern: 'none',
+  borderPattern: 'none',
   presets: [],
 });
 
@@ -109,6 +111,85 @@ export const createDefaultResume = (title = '未命名简历'): Resume => {
   resume.layout.sectionItemsOrder.projects = resume.projects.map((item) => item.id);
 
   return resume;
+};
+
+export const createDebugResume = (title = '调试简历'): Resume => {
+  const resume = createDefaultResume(title);
+  const educationId = resume.education[0]?.id ?? newId();
+  const workId = resume.work[0]?.id ?? newId();
+  const skillsId = resume.skills[0]?.id ?? newId();
+  const projectId = resume.projects[0]?.id ?? newId();
+
+  const next: Resume = {
+    ...resume,
+    title,
+    templateId: 'professional',
+    profile: {
+      avatar: '',
+      name: '张三',
+      phone: '13800138000',
+      email: 'zhangsan@example.com',
+      city: '上海',
+      summary: '5年全栈开发经验，擅长构建高可用业务系统与工程化优化。',
+    },
+    jobTarget: {
+      title: '高级前端工程师',
+      direction: 'Web前端',
+      years: '5年',
+      salaryExpectation: '30k-40k',
+    },
+    education: [
+      {
+        id: educationId,
+        school: '同济大学',
+        degree: '本科',
+        major: '软件工程',
+        period: '2015-09 ~ 2019-06',
+        highlights: '主修数据结构、操作系统、编译原理，GPA 3.6/4.0',
+      },
+    ],
+    work: [
+      {
+        id: workId,
+        company: '某科技公司',
+        role: '前端负责人',
+        period: '2021-03 ~ 至今',
+        description: '负责中后台与低代码平台建设，推动模块化架构和性能优化。',
+      },
+    ],
+    skills: [
+      {
+        id: skillsId,
+        category: '技术栈',
+        content: 'TypeScript, React, Node.js, Vite, Zustand, Playwright',
+      },
+    ],
+    projects: [
+      {
+        id: projectId,
+        name: '营销投放平台',
+        role: '技术负责人',
+        period: '2023-01 ~ 2024-08',
+        techStack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+        description: '从0到1搭建投放管理平台，支持多渠道素材配置与实时数据看板。',
+        highlights: ['首屏渲染耗时降低45%', '关键页面交互耗时降低30%'],
+        metrics: ['月活提升至2.1万', '人效提升约40%'],
+      },
+    ],
+    layout: {
+      ...resume.layout,
+      backgroundPattern: 'wave',
+      borderPattern: 'line',
+      sectionItemsOrder: {
+        education: [educationId],
+        work: [workId],
+        skills: [skillsId],
+        projects: [projectId],
+      },
+    },
+  };
+
+  return next;
 };
 
 export const touchResume = (resume: Resume): Resume => ({

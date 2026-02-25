@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import type { Resume, SectionType } from '../../core/domain/types';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
@@ -41,6 +43,14 @@ const presetOptions = {
   workRole: ['前端工程师', '后端工程师', '全栈工程师', '测试工程师', '项目经理', '架构师'],
   projectRole: ['负责人', '核心开发', '前端负责人', '后端负责人', '测试负责人', '项目经理'],
 };
+
+const styleOptions = [
+  { key: 'clean', name: '纯净留白', backgroundPattern: 'none', borderPattern: 'none' },
+  { key: 'wave-line', name: '大波浪细线框', backgroundPattern: 'wave', borderPattern: 'line' },
+  { key: 'wave-corner', name: '大波浪角标框', backgroundPattern: 'wave', borderPattern: 'corner' },
+  { key: 'wave-double', name: '大波浪双线框', backgroundPattern: 'wave', borderPattern: 'double' },
+  { key: 'clean-accent', name: '留白强调框', backgroundPattern: 'none', borderPattern: 'left-accent' },
+] as const;
 
 const normalizeMonth = (value: string): string => {
   const match = value.match(/^(\d{4})[-/.](\d{1,2})$/);
@@ -85,6 +95,15 @@ const createItemId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
 
+const resolveStyleKey = (resume: Resume): string => {
+  const found = styleOptions.find(
+    (item) =>
+      item.backgroundPattern === resume.layout.backgroundPattern &&
+      item.borderPattern === resume.layout.borderPattern,
+  );
+  return found?.key ?? 'clean';
+};
+
 export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: EditorProps) => {
   const [aiLoadingId, setAiLoadingId] = useState<string>('');
   const [aiError, setAiError] = useState<string>('');
@@ -93,6 +112,8 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
   const [presetName, setPresetName] = useState<string>('');
   const [compactMode, setCompactMode] = useState<boolean>(() => localStorage.getItem('editor-compact-mode') === '1');
   const [leftTwoCol, setLeftTwoCol] = useState<boolean>(() => localStorage.getItem('editor-left-two-col') === '1');
+  const [previewPage, setPreviewPage] = useState<number>(1);
+  const [previewPages, setPreviewPages] = useState<number>(1);
   const previewRef = useRef<HTMLDivElement>(null);
   const ollama = useSettingsStore((state) => state.ollama);
 
@@ -101,6 +122,7 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
     () => resume.layout.sectionOrder.filter((section) => resume.layout.sectionVisibility[section]),
     [resume.layout.sectionOrder, resume.layout.sectionVisibility],
   );
+  const selectedStyleKey = useMemo(() => resolveStyleKey(resume), [resume]);
 
   const updateResume = (patch: Partial<Resume>) => {
     onChange({ ...resume, ...patch });
@@ -131,6 +153,142 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
   useEffect(() => {
     localStorage.setItem('editor-left-two-col', leftTwoCol ? '1' : '0');
   }, [leftTwoCol]);
+
+  const applyPreviewPageBreaks = useCallback(() => {
+    const container = previewRef.current;
+    const template = container?.querySelector<HTMLElement>('.resume-template');
+    if (!container || !template) {
+      return;
+    }
+
+    const blocks = Array.from(
+      template.querySelectorAll<HTMLElement>(':scope > header, :scope > .resume-section'),
+    );
+    if (blocks.length === 0) {
+      return;
+    }
+
+    const oldSpacers = template.querySelectorAll<HTMLElement>(':scope > .preview-page-break-spacer');
+    oldSpacers.forEach((item) => item.remove());
+
+    const a4Ratio = 297 / 210;
+    const pageHeight = template.clientWidth * a4Ratio;
+    if (!pageHeight || Number.isNaN(pageHeight)) {
+      return;
+    }
+
+    if (template.classList.contains('two-column-template') || template.classList.contains('compact-template')) {
+      return;
+    }
+
+    for (const block of blocks) {
+      const top = block.offsetTop;
+      const height = block.offsetHeight;
+      if (!height) {
+        continue;
+      }
+
+      const currentPageBottom = Math.ceil((top + 1) / pageHeight) * pageHeight;
+      if (top + height <= currentPageBottom) {
+        continue;
+      }
+
+      const gap = currentPageBottom - top;
+      if (gap <= 0) {
+        continue;
+      }
+      const minCarryGap = Math.min(48, pageHeight * 0.07);
+      if (gap < minCarryGap) {
+        continue;
+      }
+      const maxCarryGap = Math.min(180, pageHeight * 0.30);
+      if (gap > maxCarryGap) {
+        continue;
+      }
+      if (height > pageHeight * 0.8) {
+        continue;
+      }
+
+      const spacer = document.createElement('div');
+      spacer.className = 'preview-page-break-spacer';
+      spacer.style.height = `${gap}px`;
+      spacer.style.width = '100%';
+      spacer.style.pointerEvents = 'none';
+      spacer.setAttribute('aria-hidden', 'true');
+      template.insertBefore(spacer, block);
+    }
+  }, []);
+
+  const syncPreviewPagination = useCallback(() => {
+    const container = previewRef.current;
+    const template = container?.querySelector<HTMLElement>('.resume-template');
+    if (!container || !template) {
+      setPreviewPage(1);
+      setPreviewPages(1);
+      return;
+    }
+
+    const a4Ratio = 297 / 210;
+    const pageHeight = template.clientWidth * a4Ratio;
+    if (!pageHeight || Number.isNaN(pageHeight)) {
+      setPreviewPage(1);
+      setPreviewPages(1);
+      return;
+    }
+
+    const templateHeight = Math.max(template.scrollHeight, template.offsetHeight);
+    const total = Math.max(1, Math.ceil(templateHeight / pageHeight));
+    const scrollWithinTemplate = Math.max(0, container.scrollTop - template.offsetTop);
+    const current = Math.min(total, Math.max(1, Math.floor(scrollWithinTemplate / pageHeight) + 1));
+
+    setPreviewPages((prev) => (prev === total ? prev : total));
+    setPreviewPage((prev) => (prev === current ? prev : current));
+  }, []);
+
+  useEffect(() => {
+    const container = previewRef.current;
+    if (!container) {
+      return;
+    }
+
+    const updatePagination = () => {
+      requestAnimationFrame(syncPreviewPagination);
+    };
+
+    const updateLayoutAndPagination = () => {
+      requestAnimationFrame(() => {
+        applyPreviewPageBreaks();
+        syncPreviewPagination();
+      });
+    };
+
+    const resizeObserver = typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(updateLayoutAndPagination);
+
+    container.addEventListener('scroll', updatePagination, { passive: true });
+    window.addEventListener('resize', updateLayoutAndPagination);
+    resizeObserver?.observe(container);
+    const template = container.querySelector('.resume-template');
+    if (template) {
+      resizeObserver.observe(template);
+    }
+
+    updateLayoutAndPagination();
+
+    return () => {
+      container.removeEventListener('scroll', updatePagination);
+      window.removeEventListener('resize', updateLayoutAndPagination);
+      resizeObserver?.disconnect();
+    };
+  }, [applyPreviewPageBreaks, syncPreviewPagination]);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      applyPreviewPageBreaks();
+      syncPreviewPagination();
+    });
+  }, [resume, applyPreviewPageBreaks, syncPreviewPagination]);
 
   const uploadAvatar = async (file?: File): Promise<void> => {
     if (!file) {
@@ -191,6 +349,7 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
             value={resume.templateId}
             onChange={(event) => updateResume({ templateId: event.target.value })}
           >
+            <option value="" disabled>选择简历模板</option>
             {templateRegistry.map((template) => (
               <option value={template.id} key={template.id}>{template.name}</option>
             ))}
@@ -232,15 +391,13 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
               <div className="avatar-placeholder">无头像</div>
             )}
             <div className="row-actions">
-              <Button asChild variant="secondary" className="file-btn">
-                <label>
-                  上传头像
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => void uploadAvatar(event.target.files?.[0])}
-                  />
-                </label>
+              <Button variant="secondary" className="file-btn" component="label">
+                上传头像
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => void uploadAvatar(event.target.files?.[0])}
+                />
               </Button>
               {resume.profile.avatar && (
                 <Button
@@ -488,6 +645,26 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
 
         <Card title="V2 布局编辑器" className="full-span layout-editor-card">
           <p className="layout-editor-tip">控制模块显示与预设，一键切换常用投递布局。</p>
+          <div className="layout-editor-form">
+            <Label>页面风格</Label>
+            <Select
+              value={selectedStyleKey}
+              onChange={(event) => {
+                const selected = styleOptions.find((item) => item.key === event.target.value);
+                if (!selected) {
+                  return;
+                }
+                updateLayout({
+                  backgroundPattern: selected.backgroundPattern,
+                  borderPattern: selected.borderPattern,
+                });
+              }}
+            >
+              {styleOptions.map((item) => (
+                <option key={item.key} value={item.key}>{item.name}</option>
+              ))}
+            </Select>
+          </div>
           <div className="layout-editor-list">
             {sections.map((section) => (
               <div key={section} className="layout-control-row">
@@ -585,17 +762,20 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
         <PresetDatalists />
       </div>
 
-      <div className="preview-panel" ref={previewRef}>
-        <ResumeTemplateRenderer
-          templateId={resume.templateId}
-          props={{
-            resume,
-            sectionOrder: visibleSections,
-            sectionItemsOrder: resume.layout.sectionItemsOrder,
-            sectionRegions: resume.layout.sectionRegions,
-            twoColumnRatio: resume.layout.twoColumnRatio,
-          }}
-        />
+      <div className="preview-panel">
+        <div className="preview-page-indicator">第 {previewPage} / {previewPages} 页</div>
+        <div className="preview-scroll" ref={previewRef}>
+          <ResumeTemplateRenderer
+            templateId={resume.templateId}
+            props={{
+              resume,
+              sectionOrder: visibleSections,
+              sectionItemsOrder: resume.layout.sectionItemsOrder,
+              sectionRegions: resume.layout.sectionRegions,
+              twoColumnRatio: resume.layout.twoColumnRatio,
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -635,19 +815,37 @@ const PresetDatalists = () => (
 
 const PeriodInput = ({ value, onChange }: { value: string; onChange: (next: string) => void }) => {
   const { start, end, ongoing } = parsePeriod(value);
+  const startDate = start ? dayjs(`${start}-01`) : null;
+  const endDate = end ? dayjs(`${end}-01`) : null;
 
   return (
     <div className="row-actions">
-      <Input
-        type="month"
-        value={start}
-        onChange={(event) => onChange(formatPeriod(event.target.value, end, ongoing))}
+      <DatePicker
+        views={['year', 'month']}
+        label="开始时间"
+        format="YYYY-MM"
+        value={startDate}
+        onChange={(next) => onChange(formatPeriod(next ? next.format('YYYY-MM') : '', end, ongoing))}
+        slotProps={{
+          textField: {
+            size: 'small',
+            fullWidth: true,
+          },
+        }}
       />
-      <Input
-        type="month"
-        value={end}
+      <DatePicker
+        views={['year', 'month']}
+        label="结束时间"
+        format="YYYY-MM"
+        value={endDate}
         disabled={ongoing}
-        onChange={(event) => onChange(formatPeriod(start, event.target.value, ongoing))}
+        onChange={(next) => onChange(formatPeriod(start, next ? next.format('YYYY-MM') : '', ongoing))}
+        slotProps={{
+          textField: {
+            size: 'small',
+            fullWidth: true,
+          },
+        }}
       />
       <Label className="inline-check">
         <Checkbox

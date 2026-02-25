@@ -7,12 +7,13 @@ export const TwoColumnTemplate = ({
   sectionItemsOrder,
   sectionRegions,
   twoColumnRatio,
-}: ResumeTemplateProps) => {
+  className,
+}: ResumeTemplateProps & { className?: string }) => {
   const left = sectionOrder.filter((section) => (sectionRegions[section] ?? 'right') === 'left');
   const right = sectionOrder.filter((section) => (sectionRegions[section] ?? 'right') === 'right');
 
   return (
-    <div className="resume-template two-column-template">
+    <div className={`resume-template two-column-template ${className ?? ''}`.trim()}>
       <header className="resume-header">
         <ResumeHeaderIdentity
           name={resume.profile.name || resume.title}

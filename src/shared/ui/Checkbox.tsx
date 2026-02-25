@@ -1,20 +1,11 @@
 import * as React from 'react';
+import CheckboxMui, { type CheckboxProps as MuiCheckboxProps } from '@mui/material/Checkbox';
 import { cn } from '../../lib/utils';
 
-export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface CheckboxProps extends MuiCheckboxProps {}
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(({ className, ...props }, ref) => {
-  return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className={cn(
-        'ui-checkbox h-4 w-4 rounded border border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50',
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <CheckboxMui inputRef={ref} className={cn('ui-checkbox', className)} size="small" {...props} />;
 });
 
 Checkbox.displayName = 'Checkbox';
