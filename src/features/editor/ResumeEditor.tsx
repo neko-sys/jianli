@@ -11,7 +11,7 @@ import { Select } from '../../shared/ui/Select';
 import { Textarea } from '../../shared/ui/Textarea';
 import { SortableList } from './SortableList';
 import { templateRegistry } from '../templates/templateRegistry';
-import { ResumeTemplateRenderer } from '../templates/ResumeTemplateRenderer';
+import { PaginatedResumeRenderer } from '../templates/PaginatedResumeRenderer';
 import { polishProjectDescription } from '../../core/ai/resumePolishService';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { applyLayoutConstraints } from '../../core/domain/layoutConstraints';
@@ -154,95 +154,30 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
     localStorage.setItem('editor-left-two-col', leftTwoCol ? '1' : '0');
   }, [leftTwoCol]);
 
-  const applyPreviewPageBreaks = useCallback(() => {
-    const container = previewRef.current;
-    const template = container?.querySelector<HTMLElement>('.resume-template');
-    if (!container || !template) {
-      return;
-    }
-
-    const blocks = Array.from(
-      template.querySelectorAll<HTMLElement>(':scope > header, :scope > .resume-section'),
-    );
-    if (blocks.length === 0) {
-      return;
-    }
-
-    const oldSpacers = template.querySelectorAll<HTMLElement>(':scope > .preview-page-break-spacer');
-    oldSpacers.forEach((item) => item.remove());
-
-    const a4Ratio = 297 / 210;
-    const pageHeight = template.clientWidth * a4Ratio;
-    if (!pageHeight || Number.isNaN(pageHeight)) {
-      return;
-    }
-
-    if (template.classList.contains('two-column-template') || template.classList.contains('compact-template')) {
-      return;
-    }
-
-    for (const block of blocks) {
-      const top = block.offsetTop;
-      const height = block.offsetHeight;
-      if (!height) {
-        continue;
-      }
-
-      const currentPageBottom = Math.ceil((top + 1) / pageHeight) * pageHeight;
-      if (top + height <= currentPageBottom) {
-        continue;
-      }
-
-      const gap = currentPageBottom - top;
-      if (gap <= 0) {
-        continue;
-      }
-      const minCarryGap = Math.min(48, pageHeight * 0.07);
-      if (gap < minCarryGap) {
-        continue;
-      }
-      const maxCarryGap = Math.min(180, pageHeight * 0.30);
-      if (gap > maxCarryGap) {
-        continue;
-      }
-      if (height > pageHeight * 0.8) {
-        continue;
-      }
-
-      const spacer = document.createElement('div');
-      spacer.className = 'preview-page-break-spacer';
-      spacer.style.height = `${gap}px`;
-      spacer.style.width = '100%';
-      spacer.style.pointerEvents = 'none';
-      spacer.setAttribute('aria-hidden', 'true');
-      template.insertBefore(spacer, block);
-    }
-  }, []);
-
   const syncPreviewPagination = useCallback(() => {
     const container = previewRef.current;
-    const template = container?.querySelector<HTMLElement>('.resume-template');
-    if (!container || !template) {
+    if (!container) {
       setPreviewPage(1);
       setPreviewPages(1);
       return;
     }
-
-    const a4Ratio = 297 / 210;
-    const pageHeight = template.clientWidth * a4Ratio;
-    if (!pageHeight || Number.isNaN(pageHeight)) {
+    const pages = Array.from(container.querySelectorAll<HTMLElement>('.resume-page'));
+    if (pages.length === 0) {
       setPreviewPage(1);
       setPreviewPages(1);
       return;
     }
-
-    const templateHeight = Math.max(template.scrollHeight, template.offsetHeight);
-    const total = Math.max(1, Math.ceil(templateHeight / pageHeight));
-    const scrollWithinTemplate = Math.max(0, container.scrollTop - template.offsetTop);
-    const current = Math.min(total, Math.max(1, Math.floor(scrollWithinTemplate / pageHeight) + 1));
-
-    setPreviewPages((prev) => (prev === total ? prev : total));
+    const containerRect = container.getBoundingClientRect();
+    let current = 1;
+    pages.forEach((page, index) => {
+      const rect = page.getBoundingClientRect();
+      if (rect.top - containerRect.top <= 24) {
+        current = index + 1;
+      }
+    });
+    const total = pages.length;
     setPreviewPage((prev) => (prev === current ? prev : current));
+    setPreviewPages((prev) => (prev === total ? prev : total));
   }, []);
 
   useEffect(() => {
@@ -255,24 +190,19 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
       requestAnimationFrame(syncPreviewPagination);
     };
 
-    const updateLayoutAndPagination = () => {
-      requestAnimationFrame(() => {
-        applyPreviewPageBreaks();
-        syncPreviewPagination();
-      });
-    };
+    const updateLayoutAndPagination = () => requestAnimationFrame(syncPreviewPagination);
 
     const resizeObserver = typeof ResizeObserver === 'undefined'
       ? null
       : new ResizeObserver(updateLayoutAndPagination);
+    const mutationObserver = typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(updateLayoutAndPagination);
 
     container.addEventListener('scroll', updatePagination, { passive: true });
     window.addEventListener('resize', updateLayoutAndPagination);
     resizeObserver?.observe(container);
-    const template = container.querySelector('.resume-template');
-    if (template) {
-      resizeObserver.observe(template);
-    }
+    mutationObserver?.observe(container, { childList: true, subtree: true });
 
     updateLayoutAndPagination();
 
@@ -280,15 +210,13 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
       container.removeEventListener('scroll', updatePagination);
       window.removeEventListener('resize', updateLayoutAndPagination);
       resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
     };
-  }, [applyPreviewPageBreaks, syncPreviewPagination]);
+  }, [syncPreviewPagination]);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      applyPreviewPageBreaks();
-      syncPreviewPagination();
-    });
-  }, [resume, applyPreviewPageBreaks, syncPreviewPagination]);
+    requestAnimationFrame(syncPreviewPagination);
+  }, [resume, syncPreviewPagination]);
 
   const uploadAvatar = async (file?: File): Promise<void> => {
     if (!file) {
@@ -319,7 +247,9 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
               <Button variant="secondary" onClick={onExportJson}>导出 JSON</Button>
               <Button
                 onClick={async () => {
-                  const target = previewRef.current?.querySelector('.resume-template');
+                  const target =
+                    previewRef.current?.querySelector('.resume-paginated-root') ??
+                    previewRef.current?.querySelector('.resume-template');
                   if (!(target instanceof HTMLElement) || pdfLoading) {
                     return;
                   }
@@ -765,7 +695,7 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
       <div className="preview-panel">
         <div className="preview-page-indicator">第 {previewPage} / {previewPages} 页</div>
         <div className="preview-scroll" ref={previewRef}>
-          <ResumeTemplateRenderer
+          <PaginatedResumeRenderer
             templateId={resume.templateId}
             props={{
               resume,
@@ -773,6 +703,11 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
               sectionItemsOrder: resume.layout.sectionItemsOrder,
               sectionRegions: resume.layout.sectionRegions,
               twoColumnRatio: resume.layout.twoColumnRatio,
+            }}
+            mode="preview"
+            onPageCountChange={(count) => {
+              setPreviewPages(count);
+              setPreviewPage((prev) => Math.min(prev, count));
             }}
           />
         </div>

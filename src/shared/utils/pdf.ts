@@ -43,6 +43,10 @@ const buildPdfHtml = async (source: HTMLElement): Promise<string> => {
 ${cssText}
 body { margin: 0; padding: 0; background: #fff; overflow: visible; }
 .resume-template { margin: 0 auto !important; }
+.resume-paginated-measure { display: none !important; }
+.resume-page { margin: 0 !important; page-break-after: always; break-after: page; }
+.resume-page:last-child { page-break-after: auto; break-after: auto; }
+.resume-page .resume-template { box-shadow: none !important; }
   </style>
 </head>
 <body>
