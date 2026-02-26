@@ -2,7 +2,24 @@ import { appHttpClient, HttpError } from '../http/client';
 
 const PDF_SERVER =
   process.env.NEXT_PUBLIC_PDF_SERVER_URL ??
-  'http://127.0.0.1:4177/export-pdf';
+  '/api/pdf/export';
+
+const openPrintFallback = (html: string, filename: string): boolean => {
+  const printWindow = window.open('', '_blank', 'noopener,noreferrer');
+  if (!printWindow) {
+    return false;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.document.title = `${filename || 'resume'}.pdf`;
+  printWindow.focus();
+  window.setTimeout(() => {
+    printWindow.print();
+  }, 300);
+  return true;
+};
 
 const collectCssText = async (): Promise<string> => {
   const cssChunks: string[] = [];
@@ -72,9 +89,12 @@ export const downloadPdfFromElement = async (
     blob = await response.blob();
   } catch (error) {
     if (error instanceof HttpError) {
-      throw new Error(error.body || 'PDF 导出失败，请检查本地 PDF 服务。');
+      throw new Error(error.body || 'PDF 导出失败，请检查 Next 内置 PDF 接口。');
     }
-    throw error;
+    if (openPrintFallback(html, filename)) {
+      return;
+    }
+    throw new Error('PDF 导出不可用。请检查 Next 服务日志，或允许弹出窗口后重试。');
   }
 
   const url = URL.createObjectURL(blob);
