@@ -18,6 +18,32 @@ const sectionTitleMap: Record<string, string> = {
 
 const hasText = (value: string): boolean => value.trim().length > 0;
 const DEFAULT_TECH_ICON = 'mdi:code-tags';
+const BULLET_PREFIX_RE = /^[-*•●▪◦]\s+/;
+
+const renderSkillTextContent = (text: string) => {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    return null;
+  }
+
+  const useList = lines.length > 1 || lines.some((line) => BULLET_PREFIX_RE.test(line));
+  if (!useList) {
+    return <p>{lines[0]}</p>;
+  }
+
+  const items = lines.map((line) => line.replace(BULLET_PREFIX_RE, ''));
+  return (
+    <ul className="skill-list">
+      {items.map((item, index) => (
+        <li key={`${item}-${index}`}>{item}</li>
+      ))}
+    </ul>
+  );
+};
 
 const TechBadge = ({ label, showIcon }: { label: string; showIcon: boolean }) => {
   const [iconName, setIconName] = useState<string | undefined>(() => getTechIcon(label));
@@ -151,7 +177,9 @@ export const renderSectionContent = (
       return reorderByIds(resume.skills, sectionItemsOrder.skills ?? []).map((item) => (
         <article key={item.id} className="entry">
           <strong>{item.category}</strong>
-          <TechBadgeList values={splitTechValues(item.content)} showIcons={showTechIcons} />
+          {item.category.includes('技术栈')
+            ? <TechBadgeList values={splitTechValues(item.content)} showIcons={showTechIcons} />
+            : renderSkillTextContent(item.content)}
         </article>
       ));
     case 'projects':

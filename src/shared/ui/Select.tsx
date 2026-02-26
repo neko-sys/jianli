@@ -3,7 +3,7 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import ListSubheader from '@mui/material/ListSubheader';
 import SelectMui, { type SelectChangeEvent } from '@mui/material/Select';
-import { cn } from '../../lib/utils';
+import { type SelectProps as MuiSelectProps } from '@mui/material/Select';
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 
@@ -49,27 +49,35 @@ const renderSelectChildren = (children: React.ReactNode): React.ReactNode[] =>
     return [node];
   });
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, onChange, children, ...props }, ref) => {
-  const handleChange = (event: SelectChangeEvent<unknown>) => {
+export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
+  className,
+  onChange,
+  children,
+  ...props
+}, ref) => {
+  const emitValueChange = (nextValue: string) => {
     if (!onChange) {
       return;
     }
 
     onChange({
-      ...event,
       target: {
-        ...event.target,
-        value: String(event.target.value),
+        ...(props as Record<string, unknown>),
+        value: nextValue,
       },
     } as unknown as React.ChangeEvent<HTMLSelectElement>);
   };
 
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
+    emitValueChange(String(event.target.value));
+  };
+
   return (
-    <FormControl fullWidth size="small" className={cn('ui-select', className)}>
+    <FormControl fullWidth size="small" className={className}>
       <SelectMui
         ref={ref as unknown as React.Ref<HTMLDivElement>}
         onChange={handleChange}
-        {...(props as Record<string, unknown>)}
+        {...(props as unknown as MuiSelectProps<unknown>)}
       >
         {renderSelectChildren(children)}
       </SelectMui>

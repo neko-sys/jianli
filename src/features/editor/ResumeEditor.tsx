@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import dayjs from 'dayjs';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import type { Resume, SectionType } from '../../core/domain/types';
 import { Button } from '../../shared/ui/Button';
@@ -33,7 +35,6 @@ const sectionText: Record<SectionType, string> = {
 };
 
 const presetOptions = {
-  gender: ['男', '女'],
   city: ['北京', '上海', '深圳', '广州', '杭州', '成都', '武汉', '西安', '南京', '苏州'],
   jobTitle: ['前端开发工程师', '后端开发工程师', '全栈工程师', 'Java工程师', '测试开发工程师', '算法工程师', '产品经理', '项目经理'],
   jobDirection: ['Web前端', '后端服务', '全栈开发', '数据分析', '人工智能', '测试开发', '移动端开发', '运维开发'],
@@ -381,12 +382,18 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
             onChange={(e) => updateResume({ profile: { ...resume.profile, phone: e.target.value } })}
           />
           <Label>性别</Label>
-          <Input
-            list="preset-gender"
-            placeholder="例如：男"
-            value={resume.profile.gender}
-            onChange={(e) => updateResume({ profile: { ...resume.profile, gender: e.target.value } })}
-          />
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={resume.profile.gender || null}
+            onChange={(_, nextValue: string | null) => {
+              updateResume({ profile: { ...resume.profile, gender: nextValue ?? '' } });
+            }}
+            aria-label="性别"
+          >
+            <ToggleButton value="男">男</ToggleButton>
+            <ToggleButton value="女">女</ToggleButton>
+          </ToggleButtonGroup>
           <Label>年龄</Label>
           <Input
             type="number"
@@ -419,11 +426,15 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
             onChange={(e) => updateResume({ profile: { ...resume.profile, github: e.target.value } })}
           />
           <Label>城市</Label>
-          <Input
-            list="preset-city"
+          <Select
             value={resume.profile.city}
             onChange={(e) => updateResume({ profile: { ...resume.profile, city: e.target.value } })}
-          />
+          >
+            <option value="">请选择城市</option>
+            {presetOptions.city.map((item) => (
+              <option key={item} value={item}>{item}</option>
+            ))}
+          </Select>
           <Label>个人总结</Label>
           <Textarea value={resume.profile.summary} onChange={(e) => updateResume({ profile: { ...resume.profile, summary: e.target.value } })} />
         </Card>
@@ -556,7 +567,11 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                 value={item.category}
                 onChange={(e) => update({ ...item, category: e.target.value })}
               />
-              <Textarea placeholder="内容" value={item.content} onChange={(e) => update({ ...item, content: e.target.value })} />
+              <Textarea
+                placeholder="支持多行描述，使用 - 开头可显示圆点列表"
+                value={item.content}
+                onChange={(e) => update({ ...item, content: e.target.value })}
+              />
             </>
           )}
         />
@@ -795,12 +810,6 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
 
 const PresetDatalists = () => (
   <>
-    <datalist id="preset-gender">
-      {presetOptions.gender.map((item) => <option key={item} value={item} />)}
-    </datalist>
-    <datalist id="preset-city">
-      {presetOptions.city.map((item) => <option key={item} value={item} />)}
-    </datalist>
     <datalist id="preset-job-title">
       {presetOptions.jobTitle.map((item) => <option key={item} value={item} />)}
     </datalist>
@@ -853,8 +862,7 @@ const PeriodInput = ({ value, onChange }: { value: string; onChange: (next: stri
         label="结束时间"
         format="YYYY-MM"
         value={endDate}
-        disabled={ongoing}
-        onChange={(next) => onChange(formatPeriod(start, next ? next.format('YYYY-MM') : '', ongoing))}
+        onChange={(next) => onChange(formatPeriod(start, next ? next.format('YYYY-MM') : '', false))}
         slotProps={{
           textField: {
             size: 'small',
@@ -865,7 +873,7 @@ const PeriodInput = ({ value, onChange }: { value: string; onChange: (next: stri
       <Label className="inline-check">
         <Checkbox
           checked={ongoing}
-          onChange={(event) => onChange(formatPeriod(start, end, event.target.checked))}
+          onChange={(event) => onChange(formatPeriod(start, event.target.checked ? '' : end, event.target.checked))}
         />
         至今
       </Label>

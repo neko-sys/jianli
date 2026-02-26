@@ -1,22 +1,23 @@
 import * as React from 'react';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import { cn } from '../../lib/utils';
+import TextField from '@mui/material/TextField';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
-export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => {
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({
+  className,
+  ...props
+}, ref) => {
   const { rows, ...rest } = props;
 
   return (
-    <OutlinedInput
-      inputRef={ref}
+    <TextField
       multiline
       minRows={rows ?? 4}
       fullWidth
-      className={cn(
-        'ui-textarea',
-        className,
-      )}
+      size="small"
+      variant="outlined"
+      className={className}
+      inputRef={ref}
       {...rest}
     />
   );
