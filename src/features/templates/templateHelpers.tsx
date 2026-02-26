@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import type { IconType } from 'react-icons';
 import { FiCalendar, FiGithub, FiMail, FiMapPin, FiPhone, FiUser, FiUsers } from 'react-icons/fi';
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
@@ -6,6 +6,7 @@ import { reorderByIds } from '../../shared/utils/order';
 import { SiWechat } from 'react-icons/si';
 import { Icon } from '@iconify/react';
 import { getTechIcon, resolveTechIcon, splitTechValues } from './techIcons';
+import type { SectionType } from '../../core/domain/types';
 
 const sectionTitleMap: Record<string, string> = {
   profile: '个人信息',
@@ -199,3 +200,14 @@ export const renderSectionContent = (
   };
 
 export const renderTitle = (key: string): string => sectionTitleMap[key] ?? key;
+
+export const getSectionTitleStyle = (
+  section: SectionType,
+  resume: ResumeTemplateProps['resume'],
+): CSSProperties | undefined => {
+  const size = resume.layout.sectionTitleFontSizes?.[section];
+  if (typeof size !== 'number' || !Number.isFinite(size)) {
+    return undefined;
+  }
+  return { fontSize: `${size}px` };
+};

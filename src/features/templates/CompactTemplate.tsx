@@ -1,5 +1,5 @@
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
-import { renderSectionContent, renderTitle, ResumeHeaderIdentity } from './templateHelpers';
+import { getSectionTitleStyle, renderSectionContent, renderTitle, ResumeHeaderIdentity } from './templateHelpers';
 
 export const CompactTemplate = ({ resume, sectionOrder, sectionItemsOrder, className }: ResumeTemplateProps & { className?: string }) => (
   <div className={`resume-template compact-template ${className ?? ''}`.trim()}>
@@ -21,7 +21,7 @@ export const CompactTemplate = ({ resume, sectionOrder, sectionItemsOrder, class
     <div className="compact-grid">
       {sectionOrder.map((section) => (
         <section key={section} className="resume-section">
-          <h2>{renderTitle(section)}</h2>
+          <h2 style={getSectionTitleStyle(section, resume)}>{renderTitle(section)}</h2>
           <div>{renderSectionContent(
             section,
             resume,

@@ -120,6 +120,8 @@ const parseTechStack = (value: string): string[] =>
     .filter(Boolean);
 
 const formatTechStack = (values: string[]): string => values.join(', ');
+const clampTitleFontSize = (value: number): number => Math.min(24, Math.max(12, value));
+const titleSizeSections: SectionType[] = ['profile', 'jobTarget', 'education', 'work', 'skills', 'projects'];
 
 export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: EditorProps) => {
   const [aiLoadingId, setAiLoadingId] = useState<string>('');
@@ -688,6 +690,30 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
               />
               显示个人信息 Icon
             </Label>
+            {titleSizeSections.map((section) => (
+              <div key={`title-size-${section}`}>
+                <Label>{sectionText[section]}标题字号</Label>
+                <Input
+                  type="number"
+                  min={12}
+                  max={24}
+                  step={1}
+                  value={String(resume.layout.sectionTitleFontSizes?.[section] ?? 16)}
+                  onChange={(event) => {
+                    const raw = Number(event.target.value);
+                    if (!Number.isFinite(raw)) {
+                      return;
+                    }
+                    updateLayout({
+                      sectionTitleFontSizes: {
+                        ...(resume.layout.sectionTitleFontSizes ?? {}),
+                        [section]: clampTitleFontSize(raw),
+                      },
+                    });
+                  }}
+                />
+              </div>
+            ))}
           </div>
           <div className="layout-editor-list">
             {sections.map((section) => (
@@ -737,6 +763,7 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                       twoColumnRatio: resume.layout.twoColumnRatio,
                       showTechIcons: resume.layout.showTechIcons,
                       showProfileIcons: resume.layout.showProfileIcons,
+                      sectionTitleFontSizes: { ...(resume.layout.sectionTitleFontSizes ?? {}) },
                     },
                   ],
                 });
@@ -763,6 +790,7 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                         twoColumnRatio: preset.twoColumnRatio,
                         showTechIcons: preset.showTechIcons,
                         showProfileIcons: preset.showProfileIcons,
+                        sectionTitleFontSizes: { ...(preset.sectionTitleFontSizes ?? {}) },
                       })
                     }
                   >

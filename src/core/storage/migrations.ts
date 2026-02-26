@@ -55,6 +55,10 @@ export const migrateResume = (resume: Resume): Resume => {
           typeof resume.layout?.showProfileIcons === 'boolean'
             ? resume.layout.showProfileIcons
             : defaultLayout.showProfileIcons,
+        sectionTitleFontSizes: {
+          ...defaultLayout.sectionTitleFontSizes,
+          ...(resume.layout?.sectionTitleFontSizes ?? {}),
+        },
         backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
         presets: (resume.layout?.presets ?? []).map((preset) => ({
           ...preset,
@@ -70,6 +74,11 @@ export const migrateResume = (resume: Resume): Resume => {
               : (typeof resume.layout?.showProfileIcons === 'boolean'
                 ? resume.layout.showProfileIcons
                 : defaultLayout.showProfileIcons),
+          sectionTitleFontSizes: {
+            ...defaultLayout.sectionTitleFontSizes,
+            ...(resume.layout?.sectionTitleFontSizes ?? {}),
+            ...(preset.sectionTitleFontSizes ?? {}),
+          },
         })),
       },
     };
@@ -107,6 +116,10 @@ export const migrateResume = (resume: Resume): Resume => {
         typeof resume.layout?.showProfileIcons === 'boolean'
           ? resume.layout.showProfileIcons
           : defaultLayout.showProfileIcons,
+      sectionTitleFontSizes: {
+        ...defaultLayout.sectionTitleFontSizes,
+        ...(resume.layout?.sectionTitleFontSizes ?? {}),
+      },
       backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
       presets: (resume.layout?.presets ?? []).map((preset) => ({
         ...preset,
@@ -122,6 +135,11 @@ export const migrateResume = (resume: Resume): Resume => {
             : (typeof resume.layout?.showProfileIcons === 'boolean'
               ? resume.layout.showProfileIcons
               : defaultLayout.showProfileIcons),
+        sectionTitleFontSizes: {
+          ...defaultLayout.sectionTitleFontSizes,
+          ...(resume.layout?.sectionTitleFontSizes ?? {}),
+          ...(preset.sectionTitleFontSizes ?? {}),
+        },
       })),
     },
   };

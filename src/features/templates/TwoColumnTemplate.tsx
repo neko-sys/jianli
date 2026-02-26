@@ -1,5 +1,5 @@
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
-import { renderSectionContent, renderTitle, ResumeHeaderIdentity } from './templateHelpers';
+import { getSectionTitleStyle, renderSectionContent, renderTitle, ResumeHeaderIdentity } from './templateHelpers';
 
 export const TwoColumnTemplate = ({
   resume,
@@ -25,7 +25,7 @@ export const TwoColumnTemplate = ({
         <div>
           {left.map((section) => (
             <section key={section} className="resume-section">
-              <h2>{renderTitle(section)}</h2>
+              <h2 style={getSectionTitleStyle(section, resume)}>{renderTitle(section)}</h2>
               <div>{renderSectionContent(
                 section,
                 resume,
@@ -39,7 +39,7 @@ export const TwoColumnTemplate = ({
         <div>
           {right.map((section) => (
             <section key={section} className="resume-section">
-              <h2>{renderTitle(section)}</h2>
+              <h2 style={getSectionTitleStyle(section, resume)}>{renderTitle(section)}</h2>
               <div>{renderSectionContent(
                 section,
                 resume,

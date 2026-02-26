@@ -14,6 +14,7 @@ export type SectionItemsOrder = Record<string, string[]>;
 export type SectionVisibility = Record<SectionType, boolean>;
 export type SectionRegion = 'left' | 'right';
 export type SectionRegions = Partial<Record<SectionType, SectionRegion>>;
+export type SectionTitleFontSizes = Partial<Record<SectionType, number>>;
 export type BackgroundPattern = 'none' | 'wave';
 export type BorderPattern = 'none' | 'line' | 'double' | 'corner' | 'left-accent';
 
@@ -26,6 +27,7 @@ export interface LayoutPreset {
   twoColumnRatio: number;
   showTechIcons: boolean;
   showProfileIcons: boolean;
+  sectionTitleFontSizes: SectionTitleFontSizes;
 }
 
 export interface Profile {
@@ -90,6 +92,7 @@ export interface LayoutState {
   twoColumnRatio: number;
   showTechIcons: boolean;
   showProfileIcons: boolean;
+  sectionTitleFontSizes: SectionTitleFontSizes;
   backgroundPattern: BackgroundPattern;
   borderPattern: BorderPattern;
   presets: LayoutPreset[];
