@@ -15,5 +15,7 @@ describe('migrations', () => {
     expect(result.resumes[0].schemaVersion).toBe(SCHEMA_VERSION);
     expect(result.resumes[0].layout.sectionVisibility.profile).toBe(true);
     expect(result.resumes[0].layout.twoColumnRatio).toBeGreaterThanOrEqual(1);
+    expect(result.resumes[0].layout.showTechIcons).toBe(true);
+    expect(result.resumes[0].layout.showProfileIcons).toBe(true);
   });
 });

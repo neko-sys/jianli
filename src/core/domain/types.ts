@@ -24,6 +24,8 @@ export interface LayoutPreset {
   sectionVisibility: SectionVisibility;
   sectionRegions: SectionRegions;
   twoColumnRatio: number;
+  showTechIcons: boolean;
+  showProfileIcons: boolean;
 }
 
 export interface Profile {
@@ -31,6 +33,8 @@ export interface Profile {
   name: string;
   phone: string;
   email: string;
+  wechat: string;
+  github: string;
   city: string;
   summary: string;
 }
@@ -82,6 +86,8 @@ export interface LayoutState {
   sectionVisibility: SectionVisibility;
   sectionRegions: SectionRegions;
   twoColumnRatio: number;
+  showTechIcons: boolean;
+  showProfileIcons: boolean;
   backgroundPattern: BackgroundPattern;
   borderPattern: BorderPattern;
   presets: LayoutPreset[];

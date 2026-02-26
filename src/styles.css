@@ -598,6 +598,17 @@ b {
   break-inside: auto;
 }
 .line-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.contact-line-icon {
+  width: 13px;
+  height: 13px;
+  color: #53657b;
+  flex: none;
+}
 .line-grid-full {
   grid-column: 1 / -1;
   margin: 4px 0 0;

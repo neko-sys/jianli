@@ -19,6 +19,8 @@ export const migrateResume = (resume: Resume): Resume => {
     name: '',
     phone: '',
     email: '',
+    wechat: '',
+    github: '',
     city: '',
     summary: '',
     ...(resume.profile ?? {}),
@@ -43,8 +45,30 @@ export const migrateResume = (resume: Resume): Resume => {
           ...defaultLayout.sectionRegions,
           ...resume.layout?.sectionRegions,
         },
+        showTechIcons:
+          typeof resume.layout?.showTechIcons === 'boolean'
+            ? resume.layout.showTechIcons
+            : defaultLayout.showTechIcons,
+        showProfileIcons:
+          typeof resume.layout?.showProfileIcons === 'boolean'
+            ? resume.layout.showProfileIcons
+            : defaultLayout.showProfileIcons,
         backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
-        presets: resume.layout?.presets ?? [],
+        presets: (resume.layout?.presets ?? []).map((preset) => ({
+          ...preset,
+          showTechIcons:
+            typeof preset.showTechIcons === 'boolean'
+              ? preset.showTechIcons
+              : (typeof resume.layout?.showTechIcons === 'boolean'
+                ? resume.layout.showTechIcons
+                : defaultLayout.showTechIcons),
+          showProfileIcons:
+            typeof preset.showProfileIcons === 'boolean'
+              ? preset.showProfileIcons
+              : (typeof resume.layout?.showProfileIcons === 'boolean'
+                ? resume.layout.showProfileIcons
+                : defaultLayout.showProfileIcons),
+        })),
       },
     };
     return {
@@ -73,8 +97,30 @@ export const migrateResume = (resume: Resume): Resume => {
         ...defaultLayout.sectionRegions,
         ...resume.layout?.sectionRegions,
       },
+      showTechIcons:
+        typeof resume.layout?.showTechIcons === 'boolean'
+          ? resume.layout.showTechIcons
+          : defaultLayout.showTechIcons,
+      showProfileIcons:
+        typeof resume.layout?.showProfileIcons === 'boolean'
+          ? resume.layout.showProfileIcons
+          : defaultLayout.showProfileIcons,
       backgroundPattern: normalizeBackgroundPattern(resume.layout?.backgroundPattern),
-      presets: resume.layout?.presets ?? [],
+      presets: (resume.layout?.presets ?? []).map((preset) => ({
+        ...preset,
+        showTechIcons:
+          typeof preset.showTechIcons === 'boolean'
+            ? preset.showTechIcons
+            : (typeof resume.layout?.showTechIcons === 'boolean'
+              ? resume.layout.showTechIcons
+              : defaultLayout.showTechIcons),
+        showProfileIcons:
+          typeof preset.showProfileIcons === 'boolean'
+            ? preset.showProfileIcons
+            : (typeof resume.layout?.showProfileIcons === 'boolean'
+              ? resume.layout.showProfileIcons
+              : defaultLayout.showProfileIcons),
+      })),
     },
   };
   return {

@@ -1,6 +1,8 @@
 import type { IconType } from 'react-icons';
+import { FiGithub, FiMail, FiMapPin, FiPhone, FiUser } from 'react-icons/fi';
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
 import { reorderByIds } from '../../shared/utils/order';
+import { SiWechat } from 'react-icons/si';
 import { getTechIcon, splitTechValues } from './techIcons';
 
 const sectionTitleMap: Record<string, string> = {
@@ -12,20 +14,22 @@ const sectionTitleMap: Record<string, string> = {
   projects: '项目经历',
 };
 
-const TechBadge = ({ label }: { label: string }) => {
+const hasText = (value: string): boolean => value.trim().length > 0;
+
+const TechBadge = ({ label, showIcon }: { label: string; showIcon: boolean }) => {
   const Icon = getTechIcon(label) as IconType | undefined;
   return (
     <span className="tech-badge" title={label}>
-      {Icon && <Icon />}
+      {showIcon && Icon && <Icon />}
       <span>{label}</span>
     </span>
   );
 };
 
-const TechBadgeList = ({ values }: { values: string[] }) => (
+const TechBadgeList = ({ values, showIcons }: { values: string[]; showIcons: boolean }) => (
   <div className="tech-badge-list">
     {values.map((value, index) => (
-      <TechBadge key={`${value}-${index}`} label={value} />
+      <TechBadge key={`${value}-${index}`} label={value} showIcon={showIcons} />
     ))}
   </div>
 );
@@ -42,7 +46,7 @@ export const ResumeHeaderIdentity = ({
   <div className="resume-identity">
     <div className="resume-identity-text">
       <h1>{name}</h1>
-      <p>{subtitle}</p>
+      {hasText(subtitle) && <p>{subtitle}</p>}
     </div>
     {avatar && <img className="resume-avatar" src={avatar} alt="头像" />}
   </div>
@@ -52,16 +56,42 @@ export const renderSectionContent = (
   key: string,
   resume: ResumeTemplateProps['resume'],
   sectionItemsOrder: Record<string, string[]>,
+  showTechIcons: boolean,
+  showProfileIcons: boolean,
 ) => {
+  const LabelWithIcon = ({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: IconType;
+    label: string;
+    value: string;
+  }) => {
+    if (!hasText(value)) {
+      return null;
+    }
+    return (
+      <span className="contact-line">
+        {showProfileIcons && <Icon className="contact-line-icon" />}
+        <span>{label}：{value}</span>
+      </span>
+    );
+  };
+
   switch (key) {
     case 'profile':
       return (
         <div className="line-grid">
-          <span>姓名：{resume.profile.name}</span>
-          <span>电话：{resume.profile.phone}</span>
-          <span>邮箱：{resume.profile.email}</span>
-          <span>城市：{resume.profile.city}</span>
-          <p className="line-grid-full">个人总结：{resume.profile.summary}</p>
+          <LabelWithIcon icon={FiUser} label="姓名" value={resume.profile.name} />
+          <LabelWithIcon icon={FiPhone} label="电话" value={resume.profile.phone} />
+          <LabelWithIcon icon={FiMail} label="邮箱" value={resume.profile.email} />
+          <LabelWithIcon icon={SiWechat} label="微信" value={resume.profile.wechat} />
+          <LabelWithIcon icon={FiGithub} label="GitHub" value={resume.profile.github} />
+          <LabelWithIcon icon={FiMapPin} label="城市" value={resume.profile.city} />
+          {hasText(resume.profile.summary) && (
+            <p className="line-grid-full">个人总结：{resume.profile.summary}</p>
+          )}
         </div>
       );
     case 'jobTarget':
@@ -94,7 +124,7 @@ export const renderSectionContent = (
       return reorderByIds(resume.skills, sectionItemsOrder.skills ?? []).map((item) => (
         <article key={item.id} className="entry">
           <strong>{item.category}</strong>
-          <TechBadgeList values={splitTechValues(item.content)} />
+          <TechBadgeList values={splitTechValues(item.content)} showIcons={showTechIcons} />
         </article>
       ));
     case 'projects':
@@ -102,7 +132,7 @@ export const renderSectionContent = (
         <article key={item.id} className="entry">
           <strong>{item.name} - {item.role}</strong>
           <div>{item.period}</div>
-          <TechBadgeList values={item.techStack} />
+          <TechBadgeList values={item.techStack} showIcons={showTechIcons} />
           <p>{item.description}</p>
           {item.highlights.length > 0 && <p>亮点：{item.highlights.join('；')}</p>}
           {item.metrics.length > 0 && <p>成果：{item.metrics.join('；')}</p>}
@@ -111,6 +141,6 @@ export const renderSectionContent = (
     default:
       return null;
   }
-};
+  };
 
 export const renderTitle = (key: string): string => sectionTitleMap[key] ?? key;

@@ -366,6 +366,18 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
             value={resume.profile.email}
             onChange={(e) => updateResume({ profile: { ...resume.profile, email: e.target.value } })}
           />
+          <Label>微信</Label>
+          <Input
+            placeholder="例如：wechat_id"
+            value={resume.profile.wechat}
+            onChange={(e) => updateResume({ profile: { ...resume.profile, wechat: e.target.value } })}
+          />
+          <Label>GitHub</Label>
+          <Input
+            placeholder="例如：github.com/username"
+            value={resume.profile.github}
+            onChange={(e) => updateResume({ profile: { ...resume.profile, github: e.target.value } })}
+          />
           <Label>城市</Label>
           <Input
             list="preset-city"
@@ -594,6 +606,28 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                 <option key={item.key} value={item.key}>{item.name}</option>
               ))}
             </Select>
+            <Label className="inline-check">
+              <Checkbox
+                checked={resume.layout.showTechIcons}
+                onChange={(event) =>
+                  updateLayout({
+                    showTechIcons: event.target.checked,
+                  })
+                }
+              />
+              显示技术 Icon
+            </Label>
+            <Label className="inline-check">
+              <Checkbox
+                checked={resume.layout.showProfileIcons}
+                onChange={(event) =>
+                  updateLayout({
+                    showProfileIcons: event.target.checked,
+                  })
+                }
+              />
+              显示个人信息 Icon
+            </Label>
           </div>
           <div className="layout-editor-list">
             {sections.map((section) => (
@@ -641,6 +675,8 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                       sectionVisibility: { ...resume.layout.sectionVisibility },
                       sectionRegions: { ...resume.layout.sectionRegions },
                       twoColumnRatio: resume.layout.twoColumnRatio,
+                      showTechIcons: resume.layout.showTechIcons,
+                      showProfileIcons: resume.layout.showProfileIcons,
                     },
                   ],
                 });
@@ -665,6 +701,8 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                         sectionVisibility: { ...preset.sectionVisibility },
                         sectionRegions: { ...preset.sectionRegions },
                         twoColumnRatio: preset.twoColumnRatio,
+                        showTechIcons: preset.showTechIcons,
+                        showProfileIcons: preset.showProfileIcons,
                       })
                     }
                   >

@@ -10,9 +10,11 @@ export const CompactTemplate = ({ resume, sectionOrder, sectionItemsOrder, class
         avatar={resume.profile.avatar}
       />
       <div className="compact-contact">
-        <span>{resume.profile.phone}</span>
-        <span>{resume.profile.email}</span>
-        <span>{resume.profile.city}</span>
+        {resume.profile.phone.trim() && <span>{resume.profile.phone}</span>}
+        {resume.profile.email.trim() && <span>{resume.profile.email}</span>}
+        {resume.profile.wechat.trim() && <span>微信：{resume.profile.wechat}</span>}
+        {resume.profile.github.trim() && <span>{resume.profile.github}</span>}
+        {resume.profile.city.trim() && <span>{resume.profile.city}</span>}
       </div>
     </header>
 
@@ -20,7 +22,13 @@ export const CompactTemplate = ({ resume, sectionOrder, sectionItemsOrder, class
       {sectionOrder.map((section) => (
         <section key={section} className="resume-section">
           <h2>{renderTitle(section)}</h2>
-          <div>{renderSectionContent(section, resume, sectionItemsOrder)}</div>
+          <div>{renderSectionContent(
+            section,
+            resume,
+            sectionItemsOrder,
+            resume.layout.showTechIcons,
+            resume.layout.showProfileIcons,
+          )}</div>
         </section>
       ))}
     </div>

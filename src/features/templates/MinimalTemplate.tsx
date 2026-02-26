@@ -13,7 +13,13 @@ export const MinimalTemplate = ({ resume, sectionOrder, sectionItemsOrder, class
     {sectionOrder.map((section) => (
       <section key={section} className="resume-section">
         <h2>{renderTitle(section)}</h2>
-        <div>{renderSectionContent(section, resume, sectionItemsOrder)}</div>
+        <div>{renderSectionContent(
+          section,
+          resume,
+          sectionItemsOrder,
+          resume.layout.showTechIcons,
+          resume.layout.showProfileIcons,
+        )}</div>
       </section>
     ))}
   </div>
