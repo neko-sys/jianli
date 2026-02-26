@@ -111,6 +111,14 @@ const safeGetLocalStorageFlag = (key: string): boolean => {
   return window.localStorage.getItem(key) === '1';
 };
 
+const parseTechStack = (value: string): string[] =>
+  value
+    .split(/[，,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const formatTechStack = (values: string[]): string => values.join(', ');
+
 export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: EditorProps) => {
   const [aiLoadingId, setAiLoadingId] = useState<string>('');
   const [aiError, setAiError] = useState<string>('');
@@ -561,10 +569,9 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                 onChange={(e) => update({ ...item, role: e.target.value })}
               />
               <PeriodInput value={item.period} onChange={(next) => update({ ...item, period: next })} />
-              <Input
-                placeholder="技术栈（逗号分隔）"
-                value={item.techStack.join(',')}
-                onChange={(e) => update({ ...item, techStack: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })}
+              <TechStackInput
+                value={item.techStack}
+                onChange={(nextTechStack) => update({ ...item, techStack: nextTechStack })}
               />
               <Textarea placeholder="项目描述" value={item.description} onChange={(e) => update({ ...item, description: e.target.value })} />
               <div className="row-actions">
@@ -841,6 +848,29 @@ const PeriodInput = ({ value, onChange }: { value: string; onChange: (next: stri
         至今
       </Label>
     </div>
+  );
+};
+
+const TechStackInput = ({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (next: string[]) => void;
+}) => {
+  const [draft, setDraft] = useState<string>(() => formatTechStack(value));
+
+  useEffect(() => {
+    setDraft(formatTechStack(value));
+  }, [value]);
+
+  return (
+    <Input
+      placeholder="技术栈（逗号分隔）"
+      value={draft}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={() => onChange(parseTechStack(draft))}
+    />
   );
 };
 

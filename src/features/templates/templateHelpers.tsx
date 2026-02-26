@@ -3,6 +3,7 @@ import { FiGithub, FiMail, FiMapPin, FiPhone, FiUser } from 'react-icons/fi';
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
 import { reorderByIds } from '../../shared/utils/order';
 import { SiWechat } from 'react-icons/si';
+import { Icon } from '@iconify/react';
 import { getTechIcon, splitTechValues } from './techIcons';
 
 const sectionTitleMap: Record<string, string> = {
@@ -17,10 +18,10 @@ const sectionTitleMap: Record<string, string> = {
 const hasText = (value: string): boolean => value.trim().length > 0;
 
 const TechBadge = ({ label, showIcon }: { label: string; showIcon: boolean }) => {
-  const Icon = getTechIcon(label) as IconType | undefined;
+  const iconName = getTechIcon(label);
   return (
     <span className="tech-badge" title={label}>
-      {showIcon && Icon && <Icon />}
+      {showIcon && iconName && <Icon icon={iconName} width={13} height={13} />}
       <span>{label}</span>
     </span>
   );
