@@ -16,8 +16,16 @@ interface SettingsState {
 
 const LS_KEY = 'resume-builder-settings';
 
+const getStorage = (): Storage | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.localStorage;
+};
+
 const load = (): PersistedSettings => {
-  const raw = localStorage.getItem(LS_KEY);
+  const storage = getStorage();
+  const raw = storage?.getItem(LS_KEY);
   if (!raw) {
     return {
       ollama: defaultOllamaConfig,
@@ -59,7 +67,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   ...load(),
   setOllama: (next) => {
     const snapshot = { ...get(), ollama: next };
-    localStorage.setItem(
+    getStorage()?.setItem(
       LS_KEY,
       JSON.stringify({
         ollama: snapshot.ollama,
@@ -70,7 +78,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
   setDebugMode: (next) => {
     const snapshot = { ...get(), debugMode: next };
-    localStorage.setItem(
+    getStorage()?.setItem(
       LS_KEY,
       JSON.stringify({
         ollama: snapshot.ollama,

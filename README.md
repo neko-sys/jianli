@@ -36,5 +36,5 @@
 
 ## PDF 导出说明
 - 导出按钮默认调用：`http://127.0.0.1:4177/export-pdf`
-- 可通过环境变量 `VITE_PDF_SERVER_URL` 覆盖地址
+- 可通过环境变量 `NEXT_PUBLIC_PDF_SERVER_URL` 覆盖地址
 - 若首次运行缺少浏览器，请执行：`npx playwright install chromium`

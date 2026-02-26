@@ -104,14 +104,21 @@ const resolveStyleKey = (resume: Resume): string => {
   return found?.key ?? 'clean';
 };
 
+const safeGetLocalStorageFlag = (key: string): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return window.localStorage.getItem(key) === '1';
+};
+
 export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: EditorProps) => {
   const [aiLoadingId, setAiLoadingId] = useState<string>('');
   const [aiError, setAiError] = useState<string>('');
   const [pdfError, setPdfError] = useState<string>('');
   const [pdfLoading, setPdfLoading] = useState(false);
   const [presetName, setPresetName] = useState<string>('');
-  const [compactMode, setCompactMode] = useState<boolean>(() => localStorage.getItem('editor-compact-mode') === '1');
-  const [leftTwoCol, setLeftTwoCol] = useState<boolean>(() => localStorage.getItem('editor-left-two-col') === '1');
+  const [compactMode, setCompactMode] = useState<boolean>(() => safeGetLocalStorageFlag('editor-compact-mode'));
+  const [leftTwoCol, setLeftTwoCol] = useState<boolean>(() => safeGetLocalStorageFlag('editor-left-two-col'));
   const [previewPage, setPreviewPage] = useState<number>(1);
   const [previewPages, setPreviewPages] = useState<number>(1);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -147,11 +154,17 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
   };
 
   useEffect(() => {
-    localStorage.setItem('editor-compact-mode', compactMode ? '1' : '0');
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.localStorage.setItem('editor-compact-mode', compactMode ? '1' : '0');
   }, [compactMode]);
 
   useEffect(() => {
-    localStorage.setItem('editor-left-two-col', leftTwoCol ? '1' : '0');
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.localStorage.setItem('editor-left-two-col', leftTwoCol ? '1' : '0');
   }, [leftTwoCol]);
 
   const syncPreviewPagination = useCallback(() => {

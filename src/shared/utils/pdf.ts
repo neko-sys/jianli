@@ -1,7 +1,7 @@
 import { appHttpClient, HttpError } from '../http/client';
 
 const PDF_SERVER =
-  import.meta.env.VITE_PDF_SERVER_URL ??
+  process.env.NEXT_PUBLIC_PDF_SERVER_URL ??
   'http://127.0.0.1:4177/export-pdf';
 
 const collectCssText = async (): Promise<string> => {
