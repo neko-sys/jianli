@@ -2,6 +2,14 @@
 
 本项目是离线优先的 IT 简历生成器（React + TypeScript）。
 
+## 预览
+
+### 简历编辑界面
+![简历编辑界面](./docs/resume-editor.png)
+
+### 简历预览效果
+![简历预览效果](./docs/resume-preview.png)
+
 ## 功能
 - 多份简历管理（IndexedDB）
 - 5 套模板切换（极简/专业/双栏/深色高管/紧凑投递）

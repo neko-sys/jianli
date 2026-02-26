@@ -17,6 +17,8 @@ export const migrateResume = (resume: Resume): Resume => {
   const profile = {
     avatar: '',
     name: '',
+    gender: '',
+    age: '',
     phone: '',
     email: '',
     wechat: '',

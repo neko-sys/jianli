@@ -55,6 +55,8 @@ export const createDefaultResume = (title = '未命名简历'): Resume => {
     profile: {
       avatar: '',
       name: '',
+      gender: '',
+      age: '',
       phone: '',
       email: '',
       wechat: '',
@@ -131,6 +133,8 @@ export const createDebugResume = (title = '调试简历'): Resume => {
     profile: {
       avatar: '',
       name: '张三',
+      gender: '男',
+      age: '28',
       phone: '13800138000',
       email: 'zhangsan@example.com',
       wechat: 'zhangsan_wechat',

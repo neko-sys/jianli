@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
-import { FiGithub, FiMail, FiMapPin, FiPhone, FiUser } from 'react-icons/fi';
+import { FiCalendar, FiGithub, FiMail, FiMapPin, FiPhone, FiUser, FiUsers } from 'react-icons/fi';
 import type { ResumeTemplateProps } from './ResumeTemplateRenderer';
 import { reorderByIds } from '../../shared/utils/order';
 import { SiWechat } from 'react-icons/si';
@@ -17,6 +17,7 @@ const sectionTitleMap: Record<string, string> = {
 };
 
 const hasText = (value: string): boolean => value.trim().length > 0;
+const DEFAULT_TECH_ICON = 'mdi:code-tags';
 
 const TechBadge = ({ label, showIcon }: { label: string; showIcon: boolean }) => {
   const [iconName, setIconName] = useState<string | undefined>(() => getTechIcon(label));
@@ -44,7 +45,7 @@ const TechBadge = ({ label, showIcon }: { label: string; showIcon: boolean }) =>
 
   return (
     <span className="tech-badge" title={label}>
-      {showIcon && iconName && <Icon icon={iconName} width={13} height={13} />}
+      {showIcon && <Icon icon={iconName ?? DEFAULT_TECH_ICON} width={13} height={13} />}
       <span>{label}</span>
     </span>
   );
@@ -108,6 +109,8 @@ export const renderSectionContent = (
       return (
         <div className="line-grid">
           <LabelWithIcon icon={FiUser} label="姓名" value={resume.profile.name} />
+          <LabelWithIcon icon={FiUsers} label="性别" value={resume.profile.gender} />
+          <LabelWithIcon icon={FiCalendar} label="年龄" value={resume.profile.age} />
           <LabelWithIcon icon={FiPhone} label="电话" value={resume.profile.phone} />
           <LabelWithIcon icon={FiMail} label="邮箱" value={resume.profile.email} />
           <LabelWithIcon icon={SiWechat} label="微信" value={resume.profile.wechat} />

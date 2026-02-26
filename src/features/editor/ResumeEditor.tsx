@@ -33,6 +33,7 @@ const sectionText: Record<SectionType, string> = {
 };
 
 const presetOptions = {
+  gender: ['男', '女'],
   city: ['北京', '上海', '深圳', '广州', '杭州', '成都', '武汉', '西安', '南京', '苏州'],
   jobTitle: ['前端开发工程师', '后端开发工程师', '全栈工程师', 'Java工程师', '测试开发工程师', '算法工程师', '产品经理', '项目经理'],
   jobDirection: ['Web前端', '后端服务', '全栈开发', '数据分析', '人工智能', '测试开发', '移动端开发', '运维开发'],
@@ -378,6 +379,24 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
             placeholder="例如：13800138000"
             value={resume.profile.phone}
             onChange={(e) => updateResume({ profile: { ...resume.profile, phone: e.target.value } })}
+          />
+          <Label>性别</Label>
+          <Input
+            list="preset-gender"
+            placeholder="例如：男"
+            value={resume.profile.gender}
+            onChange={(e) => updateResume({ profile: { ...resume.profile, gender: e.target.value } })}
+          />
+          <Label>年龄</Label>
+          <Input
+            type="number"
+            min={0}
+            max={120}
+            step={1}
+            inputMode="numeric"
+            placeholder="例如：28"
+            value={resume.profile.age}
+            onChange={(e) => updateResume({ profile: { ...resume.profile, age: e.target.value } })}
           />
           <Label>邮箱</Label>
           <Input
@@ -776,6 +795,9 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
 
 const PresetDatalists = () => (
   <>
+    <datalist id="preset-gender">
+      {presetOptions.gender.map((item) => <option key={item} value={item} />)}
+    </datalist>
     <datalist id="preset-city">
       {presetOptions.city.map((item) => <option key={item} value={item} />)}
     </datalist>

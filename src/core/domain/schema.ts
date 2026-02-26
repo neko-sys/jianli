@@ -12,6 +12,8 @@ export const resumeSchema = z.object({
   profile: z.object({
     avatar: nonEmpty,
     name: nonEmpty,
+    gender: nonEmpty,
+    age: nonEmpty,
     phone: nonEmpty,
     email: nonEmpty,
     wechat: nonEmpty,

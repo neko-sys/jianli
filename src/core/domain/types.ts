@@ -31,6 +31,8 @@ export interface LayoutPreset {
 export interface Profile {
   avatar: string;
   name: string;
+  gender: string;
+  age: string;
   phone: string;
   email: string;
   wechat: string;
