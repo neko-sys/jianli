@@ -567,6 +567,26 @@ b {
 .skill-list li {
   margin-bottom: 2px;
 }
+.certificate-entry {
+  display: grid;
+  gap: 2px;
+}
+.certificate-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.certificate-date {
+  color: #4b5563;
+  white-space: nowrap;
+}
+.certificate-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #4b5563;
+}
 .minimal-template { border: 1px solid #e5e7eb; }
 .professional-template .resume-section h2 { color: #005f8f; border-color: #9fc7dc; }
 .professional-template .resume-header { display: flex; justify-content: space-between; align-items: start; gap: 12px; }

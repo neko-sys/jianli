@@ -27,10 +27,19 @@ export const migrateResume = (resume: Resume): Resume => {
     summary: '',
     ...(resume.profile ?? {}),
   };
+  const certificates = (resume.certificates ?? []).map((item) => ({
+    id: item.id,
+    name: item.name ?? '',
+    issuer: item.issuer ?? '',
+    date: item.date ?? '',
+    credentialId: item.credentialId ?? '',
+    description: item.description ?? '',
+  }));
   if (resume.schemaVersion === SCHEMA_VERSION) {
     const next = {
       ...resume,
       profile,
+      certificates,
       layout: {
         ...defaultLayout,
         ...resume.layout,
@@ -92,6 +101,7 @@ export const migrateResume = (resume: Resume): Resume => {
     ...resume,
     schemaVersion: SCHEMA_VERSION,
     profile,
+    certificates,
     layout: {
       ...defaultLayout,
       ...resume.layout,

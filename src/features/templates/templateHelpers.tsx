@@ -15,6 +15,7 @@ const sectionTitleMap: Record<string, string> = {
   work: '工作经历',
   skills: '技能特长',
   projects: '项目经历',
+  certificates: '证书',
 };
 
 const hasText = (value: string): boolean => value.trim().length > 0;
@@ -192,6 +193,20 @@ export const renderSectionContent = (
           {renderMultilineTextContent(item.description)}
           {item.highlights.length > 0 && <p>亮点：{item.highlights.join('；')}</p>}
           {item.metrics.length > 0 && <p>成果：{item.metrics.join('；')}</p>}
+        </article>
+      ));
+    case 'certificates':
+      return reorderByIds(resume.certificates, sectionItemsOrder.certificates ?? []).map((item) => (
+        <article key={item.id} className="entry certificate-entry">
+          <div className="certificate-head">
+            <strong>{item.name}</strong>
+            {item.date && <span className="certificate-date">{item.date}</span>}
+          </div>
+          <div className="certificate-meta">
+            {item.issuer && <span>{item.issuer}</span>}
+            {item.credentialId && <span>编号：{item.credentialId}</span>}
+          </div>
+          {renderMultilineTextContent(item.description)}
         </article>
       ));
     default:

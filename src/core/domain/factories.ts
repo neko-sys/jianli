@@ -8,6 +8,7 @@ const defaultSectionOrder: SectionType[] = [
   'work',
   'skills',
   'projects',
+  'certificates',
 ];
 
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -20,6 +21,7 @@ export const createDefaultLayout = (): LayoutState => ({
     work: [],
     skills: [],
     projects: [],
+    certificates: [],
   },
   sectionVisibility: {
     profile: true,
@@ -28,6 +30,7 @@ export const createDefaultLayout = (): LayoutState => ({
     work: true,
     skills: true,
     projects: true,
+    certificates: true,
   },
   sectionRegions: {
     profile: 'left',
@@ -36,6 +39,7 @@ export const createDefaultLayout = (): LayoutState => ({
     education: 'right',
     work: 'right',
     projects: 'right',
+    certificates: 'right',
   },
   twoColumnRatio: 1.6,
   showTechIcons: true,
@@ -47,6 +51,7 @@ export const createDefaultLayout = (): LayoutState => ({
     work: 16,
     skills: 16,
     projects: 16,
+    certificates: 16,
   },
   backgroundPattern: 'none',
   borderPattern: 'none',
@@ -117,6 +122,16 @@ export const createDefaultResume = (title = '未命名简历'): Resume => {
         metrics: [],
       },
     ],
+    certificates: [
+      {
+        id: newId(),
+        name: '',
+        issuer: '',
+        date: '',
+        credentialId: '',
+        description: '',
+      },
+    ],
     layout: createDefaultLayout(),
   };
 
@@ -124,6 +139,7 @@ export const createDefaultResume = (title = '未命名简历'): Resume => {
   resume.layout.sectionItemsOrder.work = resume.work.map((item) => item.id);
   resume.layout.sectionItemsOrder.skills = resume.skills.map((item) => item.id);
   resume.layout.sectionItemsOrder.projects = resume.projects.map((item) => item.id);
+  resume.layout.sectionItemsOrder.certificates = resume.certificates.map((item) => item.id);
 
   return resume;
 };
@@ -135,6 +151,7 @@ export const createDebugResume = (title = '调试简历'): Resume => {
   const skillsId = resume.skills[0]?.id ?? newId();
   const coreAdvantageId = newId();
   const projectId = resume.projects[0]?.id ?? newId();
+  const certificateId = resume.certificates[0]?.id ?? newId();
 
   const next: Resume = {
     ...resume,
@@ -201,6 +218,16 @@ export const createDebugResume = (title = '调试简历'): Resume => {
         metrics: ['客服人工转接率下降 27%', '月均节省人力成本约 32 万'],
       },
     ],
+    certificates: [
+      {
+        id: certificateId,
+        name: '阿里云 ACA 云原生工程师',
+        issuer: '阿里云',
+        date: '2024-05',
+        credentialId: 'ACA-CN-2024-001952',
+        description: '覆盖 Kubernetes 集群运维、微服务部署发布与可观测体系实践。',
+      },
+    ],
     layout: {
       ...resume.layout,
       backgroundPattern: 'none',
@@ -210,6 +237,7 @@ export const createDebugResume = (title = '调试简历'): Resume => {
         work: [workId],
         skills: [skillsId, coreAdvantageId],
         projects: [projectId],
+        certificates: [certificateId],
       },
     },
   };

@@ -33,6 +33,7 @@ describe('layout constraints', () => {
     expect(next.sectionOrder).toContain('education');
     expect(next.sectionOrder).toContain('work');
     expect(next.sectionOrder).toContain('skills');
-    expect(next.sectionOrder.length).toBe(6);
+    expect(next.sectionOrder).toContain('certificates');
+    expect(next.sectionOrder.length).toBe(7);
   });
 });

@@ -7,6 +7,7 @@ const ALL_SECTIONS: SectionType[] = [
   'work',
   'skills',
   'projects',
+  'certificates',
 ];
 
 const uniqueSections = (sections: SectionType[]): SectionType[] => {
@@ -45,4 +46,3 @@ export const applyLayoutConstraints = (layout: LayoutState): LayoutState => {
     },
   };
 };
-

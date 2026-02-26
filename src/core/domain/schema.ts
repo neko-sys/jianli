@@ -65,9 +65,19 @@ export const resumeSchema = z.object({
       metrics: z.array(z.string()),
     }),
   ),
+  certificates: z.array(
+    z.object({
+      id: z.string(),
+      name: nonEmpty,
+      issuer: nonEmpty,
+      date: nonEmpty,
+      credentialId: nonEmpty,
+      description: nonEmpty,
+    }),
+  ),
   layout: z.object({
     sectionOrder: z.array(
-      z.enum(['profile', 'jobTarget', 'education', 'work', 'skills', 'projects']),
+      z.enum(['profile', 'jobTarget', 'education', 'work', 'skills', 'projects', 'certificates']),
     ),
     sectionItemsOrder: z.record(z.string(), z.array(z.string())),
     sectionVisibility: z.object({
@@ -77,6 +87,7 @@ export const resumeSchema = z.object({
       work: z.boolean(),
       skills: z.boolean(),
       projects: z.boolean(),
+      certificates: z.boolean(),
     }),
     sectionRegions: z.record(z.string(), z.enum(['left', 'right'])).default({}),
     twoColumnRatio: z.number().min(1).max(3).default(1.6),
@@ -89,6 +100,7 @@ export const resumeSchema = z.object({
       work: z.number().min(12).max(24).optional(),
       skills: z.number().min(12).max(24).optional(),
       projects: z.number().min(12).max(24).optional(),
+      certificates: z.number().min(12).max(24).optional(),
     }).default({}),
     backgroundPattern: z.enum(['none', 'wave']).default('none'),
     borderPattern: z.enum(['none', 'line', 'double', 'corner', 'left-accent']).default('none'),
@@ -97,7 +109,7 @@ export const resumeSchema = z.object({
         id: z.string(),
         name: z.string(),
         sectionOrder: z.array(
-          z.enum(['profile', 'jobTarget', 'education', 'work', 'skills', 'projects']),
+          z.enum(['profile', 'jobTarget', 'education', 'work', 'skills', 'projects', 'certificates']),
         ),
         sectionVisibility: z.object({
           profile: z.boolean(),
@@ -106,6 +118,7 @@ export const resumeSchema = z.object({
           work: z.boolean(),
           skills: z.boolean(),
           projects: z.boolean(),
+          certificates: z.boolean(),
         }),
         sectionRegions: z.record(z.string(), z.enum(['left', 'right'])).default({}),
         twoColumnRatio: z.number().min(1).max(3),
@@ -118,6 +131,7 @@ export const resumeSchema = z.object({
           work: z.number().min(12).max(24).optional(),
           skills: z.number().min(12).max(24).optional(),
           projects: z.number().min(12).max(24).optional(),
+          certificates: z.number().min(12).max(24).optional(),
         }).default({}),
       }),
     ).default([]),

@@ -32,6 +32,7 @@ const sectionText: Record<SectionType, string> = {
   work: '工作经历',
   skills: '技能特长',
   projects: '项目经历',
+  certificates: '证书',
 };
 
 const presetOptions = {
@@ -121,7 +122,11 @@ const parseTechStack = (value: string): string[] =>
 
 const formatTechStack = (values: string[]): string => values.join(', ');
 const clampTitleFontSize = (value: number): number => Math.min(24, Math.max(12, value));
-const titleSizeSections: SectionType[] = ['profile', 'jobTarget', 'education', 'work', 'skills', 'projects'];
+const titleSizeSections: SectionType[] = ['profile', 'jobTarget', 'education', 'work', 'skills', 'projects', 'certificates'];
+const hasCertificateContent = (resume: Resume): boolean =>
+  resume.certificates.some((item) =>
+    [item.name, item.issuer, item.date, item.credentialId, item.description].some((value) => value.trim().length > 0),
+  );
 
 export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: EditorProps) => {
   const [aiLoadingId, setAiLoadingId] = useState<string>('');
@@ -138,8 +143,17 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
 
   const sections = useMemo(() => resume.layout.sectionOrder, [resume.layout.sectionOrder]);
   const visibleSections = useMemo(
-    () => resume.layout.sectionOrder.filter((section) => resume.layout.sectionVisibility[section]),
-    [resume.layout.sectionOrder, resume.layout.sectionVisibility],
+    () =>
+      resume.layout.sectionOrder.filter((section) => {
+        if (!resume.layout.sectionVisibility[section]) {
+          return false;
+        }
+        if (section === 'certificates') {
+          return hasCertificateContent(resume);
+        }
+        return true;
+      }),
+    [resume],
   );
   const selectedStyleKey = useMemo(() => resolveStyleKey(resume), [resume]);
 
@@ -643,6 +657,52 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
                   {aiLoadingId === item.id ? '润色中...' : 'AI润色'}
                 </Button>
               </div>
+            </>
+          )}
+        />
+
+        <EditableListSection
+          title="证书"
+          sectionId="certificates"
+          items={resume.certificates}
+          onChange={(next) =>
+            updateResume({
+              certificates: next,
+              layout: {
+                ...resume.layout,
+                sectionItemsOrder: {
+                  ...resume.layout.sectionItemsOrder,
+                  certificates: next.map((item) => item.id),
+                },
+              },
+            })
+          }
+          createItem={() => ({ id: createItemId(), name: '', issuer: '', date: '', credentialId: '', description: '' })}
+          renderItem={(item, update) => (
+            <>
+              <Input placeholder="证书名称" value={item.name} onChange={(e) => update({ ...item, name: e.target.value })} />
+              <Input placeholder="颁发机构" value={item.issuer} onChange={(e) => update({ ...item, issuer: e.target.value })} />
+              <div className="row-actions">
+                <DatePicker
+                  views={['year', 'month']}
+                  label="获得时间"
+                  format="YYYY-MM"
+                  value={item.date ? dayjs(`${item.date}-01`) : null}
+                  onChange={(next) => update({ ...item, date: next ? next.format('YYYY-MM') : '' })}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      fullWidth: true,
+                    },
+                  }}
+                />
+                <Input
+                  placeholder="证书编号（可选）"
+                  value={item.credentialId}
+                  onChange={(e) => update({ ...item, credentialId: e.target.value })}
+                />
+              </div>
+              <Textarea placeholder="证书说明（可选）" value={item.description} onChange={(e) => update({ ...item, description: e.target.value })} />
             </>
           )}
         />

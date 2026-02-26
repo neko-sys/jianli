@@ -6,7 +6,8 @@ export type SectionType =
   | 'education'
   | 'work'
   | 'skills'
-  | 'projects';
+  | 'projects'
+  | 'certificates';
 
 export type SectionOrder = SectionType[];
 
@@ -84,6 +85,15 @@ export interface ProjectItem {
   metrics: string[];
 }
 
+export interface CertificateItem {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  credentialId: string;
+  description: string;
+}
+
 export interface LayoutState {
   sectionOrder: SectionOrder;
   sectionItemsOrder: SectionItemsOrder;
@@ -110,6 +120,7 @@ export interface Resume {
   work: WorkItem[];
   skills: SkillItem[];
   projects: ProjectItem[];
+  certificates: CertificateItem[];
   layout: LayoutState;
 }
 
