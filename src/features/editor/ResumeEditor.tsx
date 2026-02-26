@@ -901,8 +901,11 @@ const TechStackInput = ({
     <Input
       placeholder="技术栈（逗号分隔）"
       value={draft}
-      onChange={(event) => setDraft(event.target.value)}
-      onBlur={() => onChange(parseTechStack(draft))}
+      onChange={(event) => {
+        const nextDraft = event.target.value;
+        setDraft(nextDraft);
+        onChange(parseTechStack(nextDraft));
+      }}
     />
   );
 };

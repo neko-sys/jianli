@@ -11,6 +11,7 @@ const defaultSectionOrder: SectionType[] = [
 ];
 
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const debugAvatarSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='196' viewBox='0 0 140 196'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23005f8f'/><stop offset='100%' stop-color='%230ea5e9'/></linearGradient></defs><rect width='140' height='196' fill='url(%23g)'/><circle cx='70' cy='64' r='28' fill='%23eaf6ff'/><rect x='28' y='106' width='84' height='58' rx='29' fill='%23eaf6ff'/><text x='70' y='188' text-anchor='middle' font-family='Arial,sans-serif' font-size='22' fill='%23ffffff'>AI</text></svg>";
 
 export const createDefaultLayout = (): LayoutState => ({
   sectionOrder: [...defaultSectionOrder],
@@ -124,6 +125,7 @@ export const createDebugResume = (title = '调试简历'): Resume => {
   const educationId = resume.education[0]?.id ?? newId();
   const workId = resume.work[0]?.id ?? newId();
   const skillsId = resume.skills[0]?.id ?? newId();
+  const coreAdvantageId = newId();
   const projectId = resume.projects[0]?.id ?? newId();
 
   const next: Resume = {
@@ -131,7 +133,7 @@ export const createDebugResume = (title = '调试简历'): Resume => {
     title,
     templateId: 'professional',
     profile: {
-      avatar: '',
+      avatar: debugAvatarSvg,
       name: '张三',
       gender: '男',
       age: '28',
@@ -140,13 +142,13 @@ export const createDebugResume = (title = '调试简历'): Resume => {
       wechat: 'zhangsan_wechat',
       github: 'github.com/zhangsan',
       city: '上海',
-      summary: '5年全栈开发经验，擅长构建高可用业务系统与工程化优化。',
+      summary: '6年后端与平台研发经验，聚焦 Spring Cloud 微服务治理与 AI 业务落地。',
     },
     jobTarget: {
-      title: '高级前端工程师',
-      direction: 'Web前端',
-      years: '5年',
-      salaryExpectation: '30k-40k',
+      title: '资深 Java / AI 平台工程师',
+      direction: '后端服务 / AI应用',
+      years: '6年',
+      salaryExpectation: '35k-50k',
     },
     education: [
       {
@@ -161,39 +163,44 @@ export const createDebugResume = (title = '调试简历'): Resume => {
     work: [
       {
         id: workId,
-        company: '某科技公司',
-        role: '前端负责人',
+        company: '某智能科技公司',
+        role: '后端技术负责人',
         period: '2021-03 ~ 至今',
-        description: '负责中后台与低代码平台建设，推动模块化架构和性能优化。',
+        description: '• 主导 Spring Cloud 微服务拆分与治理，建立统一网关、配置中心与链路追踪\n• 搭建 AI 能力平台（RAG + Agent），支撑客服、运营分析等核心场景\n• 推进容器化与可观测体系建设，显著提升系统稳定性与交付效率',
       },
     ],
     skills: [
       {
         id: skillsId,
         category: '技术栈',
-        content: 'TypeScript, React, Node.js, Vite, Zustand, Playwright',
+        content: 'Java, Spring Boot, Spring Cloud Alibaba, MySQL, Redis, Kafka, Elasticsearch, Docker, Kubernetes, LangChain4j',
+      },
+      {
+        id: coreAdvantageId,
+        category: '核心优势',
+        content: '• 微服务架构设计与治理（注册发现、熔断限流、灰度发布）\n• AI 应用工程化落地（知识库检索、Prompt 编排、效果评估）\n• 高并发性能优化与稳定性建设（容量评估、故障演练、可观测闭环）',
       },
     ],
     projects: [
       {
         id: projectId,
-        name: '营销投放平台',
-        role: '技术负责人',
+        name: '企业级智能客服与知识库平台',
+        role: '架构负责人',
         period: '2023-01 ~ 2024-08',
-        techStack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
-        description: '从0到1搭建投放管理平台，支持多渠道素材配置与实时数据看板。',
-        highlights: ['首屏渲染耗时降低45%', '关键页面交互耗时降低30%'],
-        metrics: ['月活提升至2.1万', '人效提升约40%'],
+        techStack: ['Java', 'Spring Cloud', 'MySQL', 'Redis', 'Kafka', 'Milvus', 'LangChain4j'],
+        description: '• 构建多租户知识库检索系统，支持文档切片、向量化与召回重排\n• 设计 Agent 工作流，接入工单、CRM、FAQ，实现自动问答与辅助决策\n• 建立推理网关与缓存策略，降低模型调用成本并提升响应稳定性',
+        highlights: ['RAG 命中率提升至 85%+', '平均响应时延下降 38%'],
+        metrics: ['客服人工转接率下降 27%', '月均节省人力成本约 32 万'],
       },
     ],
     layout: {
       ...resume.layout,
-      backgroundPattern: 'wave',
-      borderPattern: 'line',
+      backgroundPattern: 'none',
+      borderPattern: 'none',
       sectionItemsOrder: {
         education: [educationId],
         work: [workId],
-        skills: [skillsId],
+        skills: [skillsId, coreAdvantageId],
         projects: [projectId],
       },
     },

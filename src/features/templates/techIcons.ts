@@ -174,6 +174,6 @@ export const resolveTechIcon = async (label: string): Promise<string | undefined
 
 export const splitTechValues = (text: string): string[] =>
   text
-    .split(/[，,\/|·\s]+/)
+    .split(/[，,、;；|·\r\n]+/)
     .map((item) => item.trim())
     .filter(Boolean);
