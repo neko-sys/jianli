@@ -20,7 +20,7 @@ const hasText = (value: string): boolean => value.trim().length > 0;
 const DEFAULT_TECH_ICON = 'mdi:code-tags';
 const BULLET_PREFIX_RE = /^[-*•●▪◦]\s+/;
 
-const renderSkillTextContent = (text: string) => {
+const renderMultilineTextContent = (text: string) => {
   const lines = text
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -162,7 +162,7 @@ export const renderSectionContent = (
           <strong>{item.school}</strong>
           <div>{item.degree} / {item.major}</div>
           <div>{item.period}</div>
-          <p>{item.highlights}</p>
+          {renderMultilineTextContent(item.highlights)}
         </article>
       ));
     case 'work':
@@ -170,7 +170,7 @@ export const renderSectionContent = (
         <article key={item.id} className="entry">
           <strong>{item.company} - {item.role}</strong>
           <div>{item.period}</div>
-          <p>{item.description}</p>
+          {renderMultilineTextContent(item.description)}
         </article>
       ));
     case 'skills':
@@ -179,7 +179,7 @@ export const renderSectionContent = (
           <strong>{item.category}</strong>
           {item.category.includes('技术栈')
             ? <TechBadgeList values={splitTechValues(item.content)} showIcons={showTechIcons} />
-            : renderSkillTextContent(item.content)}
+            : renderMultilineTextContent(item.content)}
         </article>
       ));
     case 'projects':
@@ -188,7 +188,7 @@ export const renderSectionContent = (
           <strong>{item.name} - {item.role}</strong>
           <div>{item.period}</div>
           <TechBadgeList values={item.techStack} showIcons={showTechIcons} />
-          <p>{item.description}</p>
+          {renderMultilineTextContent(item.description)}
           {item.highlights.length > 0 && <p>亮点：{item.highlights.join('；')}</p>}
           {item.metrics.length > 0 && <p>成果：{item.metrics.join('；')}</p>}
         </article>

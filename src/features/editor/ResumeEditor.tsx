@@ -41,7 +41,7 @@ const presetOptions = {
   years: ['应届', '1年', '2年', '3年', '5年', '8年', '10年+'],
   salary: ['8k-12k', '12k-20k', '20k-30k', '30k-50k', '面议'],
   degree: ['大专', '本科', '硕士', '博士'],
-  skillCategory: ['技术栈', '编程语言', '前端框架', '后端框架', '数据库', 'DevOps', '云服务'],
+  skillCategory: ['技术栈', '核心优势', '编程语言', '前端框架', '后端框架', '数据库', 'DevOps', '云服务'],
   workRole: ['前端工程师', '后端工程师', '全栈工程师', '测试工程师', '项目经理', '架构师'],
   projectRole: ['负责人', '核心开发', '前端负责人', '后端负责人', '测试负责人', '项目经理'],
 };
@@ -561,12 +561,18 @@ export const ResumeEditor = ({ resume, onChange, onExportJson, onDownloadPdf }: 
           createItem={() => ({ id: createItemId(), category: '技术栈', content: '' })}
           renderItem={(item, update) => (
             <>
-              <Input
-                list="preset-skill-category"
-                placeholder="分类"
-                value={item.category}
+              <Select
+                value={item.category || ''}
                 onChange={(e) => update({ ...item, category: e.target.value })}
-              />
+              >
+                <option value="">请选择分类</option>
+                {presetOptions.skillCategory.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+                {item.category && !presetOptions.skillCategory.includes(item.category) && (
+                  <option value={item.category}>{item.category}</option>
+                )}
+              </Select>
               <Textarea
                 placeholder="支持多行描述，使用 - 开头可显示圆点列表"
                 value={item.content}
@@ -824,9 +830,6 @@ const PresetDatalists = () => (
     </datalist>
     <datalist id="preset-degree">
       {presetOptions.degree.map((item) => <option key={item} value={item} />)}
-    </datalist>
-    <datalist id="preset-skill-category">
-      {presetOptions.skillCategory.map((item) => <option key={item} value={item} />)}
     </datalist>
     <datalist id="preset-work-role">
       {presetOptions.workRole.map((item) => <option key={item} value={item} />)}
