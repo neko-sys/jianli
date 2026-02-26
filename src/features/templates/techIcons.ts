@@ -94,16 +94,82 @@ const normalize = (value: string): string =>
     .replace(/[.\-_/()\s]/g, '')
     .trim();
 
+const iconCache = new Map<string, string | null>();
+const inflight = new Map<string, Promise<string | null>>();
+const ICON_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+
+const scoreIcon = (iconName: string): number => {
+  if (iconName.startsWith('logos:')) {
+    return 0;
+  }
+  if (iconName.startsWith('simple-icons:')) {
+    return 1;
+  }
+  if (iconName.startsWith('devicon:')) {
+    return 2;
+  }
+  return 3;
+};
+
 export const getTechIcon = (label: string): string | undefined => {
+  if (ICON_NAME_RE.test(label.trim())) {
+    return label.trim();
+  }
   const normalized = normalize(label);
   if (ICON_MAP[normalized]) {
     return ICON_MAP[normalized];
   }
-  // Fallback to Simple Icons naming convention for uncommon technologies.
-  if (normalized.length > 1) {
-    return `simple-icons:${normalized}`;
+  const cached = iconCache.get(normalized);
+  if (typeof cached === 'string') {
+    return cached;
   }
   return undefined;
+};
+
+export const resolveTechIcon = async (label: string): Promise<string | undefined> => {
+  const direct = getTechIcon(label);
+  if (direct) {
+    return direct;
+  }
+
+  const normalized = normalize(label);
+  if (!normalized || normalized.length < 2) {
+    return undefined;
+  }
+
+  if (iconCache.has(normalized)) {
+    return iconCache.get(normalized) ?? undefined;
+  }
+
+  const running = inflight.get(normalized);
+  if (running) {
+    const hit = await running;
+    return hit ?? undefined;
+  }
+
+  const query = encodeURIComponent(label.trim());
+  const request = fetch(`https://api.iconify.design/search?query=${query}&limit=12`)
+    .then(async (response) => {
+      if (!response.ok) {
+        return null;
+      }
+      const data = (await response.json()) as { icons?: string[] };
+      const icons = Array.isArray(data.icons) ? data.icons : [];
+      if (icons.length === 0) {
+        return null;
+      }
+      const best = [...icons].sort((a, b) => scoreIcon(a) - scoreIcon(b))[0];
+      return best ?? null;
+    })
+    .catch(() => null)
+    .finally(() => {
+      inflight.delete(normalized);
+    });
+
+  inflight.set(normalized, request);
+  const found = await request;
+  iconCache.set(normalized, found);
+  return found ?? undefined;
 };
 
 export const splitTechValues = (text: string): string[] =>
